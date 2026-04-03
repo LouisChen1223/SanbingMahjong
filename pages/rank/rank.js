@@ -155,5 +155,53 @@ Page({
       console.error('刷新失败:', err)
       wx.showToast({ title: '刷新失败', icon: 'none' })
     }
+  },
+
+  // 清空所有历史记录
+  clearAllData() {
+    const that = this
+    wx.showModal({
+      title: '确认清空',
+      content: '确定要清空所有排行榜数据吗？此操作不可恢复！',
+      confirmText: '清空',
+      confirmColor: '#ff4d4f',
+      success(res) {
+        if (res.confirm) {
+          that.doClearAllData()
+        }
+      }
+    })
+  },
+
+  // 执行清空操作
+  async doClearAllData() {
+    wx.showLoading({ title: '清空中...' })
+    try {
+      // 获取所有玩家
+      const { data: players } = await this.db.collection('players').get()
+      
+      // 逐个删除
+      const deletePromises = players.map(player => 
+        this.db.collection('players').doc(player._id).remove()
+      )
+      
+      await Promise.all(deletePromises)
+      
+      // 清空本地数据
+      this.setData({
+        players: [],
+        rate1List: [],
+        avoid4List: [],
+        maxScoreList: [],
+        minScoreList: []
+      })
+      
+      wx.hideLoading()
+      wx.showToast({ title: '已清空', icon: 'success' })
+    } catch (err) {
+      wx.hideLoading()
+      console.error('清空失败:', err)
+      wx.showToast({ title: '清空失败', icon: 'none' })
+    }
   }
 })
