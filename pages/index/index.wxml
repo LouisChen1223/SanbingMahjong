@@ -1,0 +1,33 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">日麻计分</text>
+  </view>
+
+  <view class="input-section">
+    <text class="section-title">录入本局得点</text>
+    <view class="player-list">
+      <view class="player-item" wx:for="{{players}}" wx:key="index">
+        <text class="player-label">{{windPositions[index]}}</text>
+        <input class="name-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="onNameInput" />
+        <input class="score-input" placeholder="得点" type="number" value="{{item.score}}" data-index="{{index}}" bindinput="onScoreInput" />
+      </view>
+    </view>
+  </view>
+
+  <button class="settle-btn" bindtap="onSettle" loading="{{loading}}">结算</button>
+
+  <view class="result-section" wx:if="{{result.length > 0}}">
+    <text class="section-title">本局结果</text>
+    <view class="result-list">
+      <view class="result-item" wx:for="{{result}}" wx:key="originalIndex">
+        <text class="result-name">{{item.name}}</text>
+        <text class="result-score">{{item.finalScore > 0 ? '+' : ''}}{{item.finalScore}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="nav-section">
+    <navigator url="/pages/rank/rank" class="nav-link">查看排行榜</navigator>
+  </view>
+</view>

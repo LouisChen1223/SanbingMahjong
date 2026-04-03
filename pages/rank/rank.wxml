@@ -1,0 +1,36 @@
+<!--rank.wxml - 实时排行榜页面-->
+<view class="container">
+  <view class="header">
+    <text class="title">实时排行榜</text>
+    <text class="subtitle">数据实时同步</text>
+  </view>
+
+  <view class="rank-list" wx:if="{{players.length > 0}}">
+    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{players}}" wx:key="_id">
+      <view class="rank-badge">
+        <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+        <text wx:else class="normal-rank">{{index + 1}}</text>
+      </view>
+      <view class="player-info">
+        <text class="player-name">{{item.name}}</text>
+        <text class="games-count">对局: {{item.games_played}}场</text>
+      </view>
+      <view class="score-section">
+        <text class="total-score {{item.total_score >= 0 ? 'positive' : 'negative'}}">
+          {{item.total_score >= 0 ? '+' : ''}}{{item.total_score}}
+        </text>
+        <text class="score-label">总分</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-text">暂无数据</text>
+    <text class="empty-hint">去录入页面开始第一局吧</text>
+  </view>
+
+  <view class="connection-status">
+    <view class="status-dot {{connected ? 'connected' : 'disconnected'}}"></view>
+    <text class="status-text">{{connected ? '实时同步中' : '连接断开'}}</text>
+  </view>
+</view>
