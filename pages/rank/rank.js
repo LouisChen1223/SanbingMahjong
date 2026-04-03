@@ -79,44 +79,13 @@ Page({
         onChange: function(snapshot) {
           console.log('数据变更:', snapshot)
           
-          // 处理数据变更
-          if (snapshot.type === 'init') {
-            // 初始化数据
+          // 直接使用snapshot.docs作为完整数据源，避免增量更新的竞态问题
+          if (snapshot.docs && snapshot.docs.length >= 0) {
             const players = snapshot.docs
-            const rankLists = that.calculateRankLists(players)
-            that.setData({
-              players: players,
-              connected: true,
-              ...rankLists
-            })
-          } else {
-            // 增量更新
-            let players = [...that.data.players]
-            
-            snapshot.docChanges.forEach(change => {
-              if (change.queueType === 'init') {
-                // 初始化时不处理，已在上面处理
-              } else if (change.queueType === 'update') {
-                // 更新数据
-                const index = players.findIndex(p => p._id === change.doc._id)
-                if (index !== -1) {
-                  players[index] = change.doc
-                }
-              } else if (change.queueType === 'enqueue') {
-                // 新增数据
-                players.push(change.doc)
-              } else if (change.queueType === 'dequeue') {
-                // 删除数据
-                players = players.filter(p => p._id !== change.doc._id)
-              }
-            })
-            
-            // 重新排序
+            // 按总分排序（确保顺序正确）
             players.sort((a, b) => b.total_score - a.total_score)
-            
-            // 重新计算各项排行榜
+            // 计算各项排行榜
             const rankLists = that.calculateRankLists(players)
-            
             that.setData({
               players: players,
               connected: true,
