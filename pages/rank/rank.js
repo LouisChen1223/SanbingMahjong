@@ -6,7 +6,12 @@ Page({
   data: {
     players: [],
     connected: false,
-    watcher: null
+    watcher: null,
+    currentTab: 'total',
+    rate1List: [],
+    avoid4List: [],
+    maxScoreList: [],
+    minScoreList: []
   },
 
   onLoad() {
@@ -19,6 +24,47 @@ Page({
     if (this.data.watcher) {
       this.data.watcher.close()
     }
+  },
+
+  // 切换标签
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.tab
+    this.setData({ currentTab: tab })
+  },
+
+  // 计算各项排行榜数据
+  calculateRankLists(players) {
+    // 一位率榜
+    const rate1List = players
+      .filter(p => p.games_played > 0)
+      .map(p => ({
+        ...p,
+        rate1: (p.rank_1_count || 0) / p.games_played,
+        rate1Str: ((p.rank_1_count || 0) / p.games_played * 100).toFixed(1) + '%'
+      }))
+      .sort((a, b) => b.rate1 - a.rate1)
+    
+    // 避四率榜
+    const avoid4List = players
+      .filter(p => p.games_played > 0)
+      .map(p => ({
+        ...p,
+        avoid4: (p.games_played - (p.rank_4_count || 0)) / p.games_played,
+        avoid4Str: ((p.games_played - (p.rank_4_count || 0)) / p.games_played * 100).toFixed(1) + '%'
+      }))
+      .sort((a, b) => b.avoid4 - a.avoid4)
+    
+    // 最高打点榜
+    const maxScoreList = players
+      .filter(p => p.max_score && p.max_score > 0)
+      .sort((a, b) => (b.max_score || 0) - (a.max_score || 0))
+    
+    // 最低打点榜
+    const minScoreList = players
+      .filter(p => p.min_score && p.min_score > 0)
+      .sort((a, b) => (a.min_score || 999999) - (b.min_score || 999999))
+    
+    return { rate1List, avoid4List, maxScoreList, minScoreList }
   },
 
   // 初始化实时监听
@@ -36,9 +82,12 @@ Page({
           // 处理数据变更
           if (snapshot.type === 'init') {
             // 初始化数据
+            const players = snapshot.docs
+            const rankLists = that.calculateRankLists(players)
             that.setData({
-              players: snapshot.docs,
-              connected: true
+              players: players,
+              connected: true,
+              ...rankLists
             })
           } else {
             // 增量更新
@@ -65,9 +114,13 @@ Page({
             // 重新排序
             players.sort((a, b) => b.total_score - a.total_score)
             
+            // 重新计算各项排行榜
+            const rankLists = that.calculateRankLists(players)
+            
             that.setData({
               players: players,
-              connected: true
+              connected: true,
+              ...rankLists
             })
           }
         },
@@ -93,7 +146,11 @@ Page({
         .limit(100)
         .get()
       
-      this.setData({ players: data })
+      const rankLists = this.calculateRankLists(data)
+      this.setData({ 
+        players: data,
+        ...rankLists
+      })
     } catch (err) {
       console.error('刷新失败:', err)
       wx.showToast({ title: '刷新失败', icon: 'none' })

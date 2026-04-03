@@ -60,14 +60,32 @@
   font-size: 28rpx;
 }
 
+.score-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 .score-input {
-  width: 180rpx;
+  width: 120rpx;
   height: 70rpx;
   padding: 0 20rpx;
   border: 1rpx solid #ddd;
-  border-radius: 8rpx;
+  border-radius: 8rpx 0 0 8rpx;
   font-size: 28rpx;
   text-align: center;
+}
+
+.score-suffix {
+  height: 70rpx;
+  line-height: 70rpx;
+  padding: 0 16rpx;
+  background: #f0f0f0;
+  border: 1rpx solid #ddd;
+  border-left: none;
+  border-radius: 0 8rpx 8rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  font-weight: bold;
 }
 
 .settle-btn {

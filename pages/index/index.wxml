@@ -10,7 +10,10 @@
       <view class="player-item" wx:for="{{players}}" wx:key="index">
         <text class="player-label">{{windPositions[index]}}</text>
         <input class="name-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="onNameInput" />
-        <input class="score-input" placeholder="得点" type="number" value="{{item.score}}" data-index="{{index}}" bindinput="onScoreInput" />
+        <view class="score-input-wrapper">
+          <input class="score-input" placeholder="得点" type="number" value="{{item.score}}" data-index="{{index}}" bindinput="onScoreInput" />
+          <text class="score-suffix">00</text>
+        </view>
       </view>
     </view>
   </view>
