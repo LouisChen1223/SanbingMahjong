@@ -45,7 +45,7 @@ Page({
     let rankedPlayers = players.map((p, originalIndex) => ({
       ...p,
       originalIndex,
-      scoreNum: parseInt(p.score) || 0,
+      scoreNum: (parseInt(p.score) || 0) * 100, // 用户输入百位，程序补齐两个零
       rawScore: 0,
       horsePoint: 0,
       finalScore: 0
@@ -89,15 +89,15 @@ Page({
         wx.showToast({ title: '请填写所有玩家得点', icon: 'none' })
         return
       }
-      const scoreNum = parseInt(p.score)
-      if (isNaN(scoreNum)) {
+      const scoreNum = (parseInt(p.score) || 0) * 100 // 用户输入百位，程序补齐两个零
+      if (isNaN(parseInt(p.score))) {
         wx.showToast({ title: '得点必须是数字', icon: 'none' })
         return
       }
-      totalScore += scoreNum
+      totalScore += parseInt(p.score) // 累加用户输入的百位数
     }
-    if (totalScore !== 100000) {
-      wx.showToast({ title: '总点数应为100000，当前为' + totalScore, icon: 'none', duration: 2000 })
+    if (totalScore !== 1000) {
+      wx.showToast({ title: '总点数应为1000(百位)，当前为' + totalScore, icon: 'none', duration: 2000 })
       return
     }
     this.setData({ loading: true })
