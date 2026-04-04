@@ -3,7 +3,10 @@
   <view class="header">
     <text class="title">实时排行榜</text>
     <text class="subtitle">数据实时同步</text>
-    <view class="clear-btn" bindtap="clearAllData">清空记录</view>
+    <view class="header-btns">
+      <view class="refresh-btn" bindtap="refreshData">刷新</view>
+      <view class="clear-btn" bindtap="clearAllData">清空记录</view>
+    </view>
   </view>
 
   <!-- 排行榜切换标签 -->
