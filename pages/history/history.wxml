@@ -19,7 +19,7 @@
       <view class="game-players">
         <view class="player-row" wx:for="{{item.players}}" wx:for-item="player" wx:key="name">
           <text class="player-name">{{player.name}}</text>
-          <text class="player-score">{{player.scoreNum}}00</text>
+          <text class="player-score">{{player.scoreNum}}</text>
           <text class="player-result {{item.result[index].finalScore >= 0 ? 'positive' : 'negative'}}" wx:if="{{item.result[index]}}">
             ({{item.result[index].finalScore > 0 ? '+' : ''}}{{item.result[index].finalScore}})
           </text>

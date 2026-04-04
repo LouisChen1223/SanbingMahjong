@@ -54,7 +54,10 @@ Page({
 
     this.setData({
       editingGame: game,
-      editPlayers: game.players.map(p => ({ ...p }))
+      editPlayers: game.players.map(p => ({ 
+        ...p, 
+        score: Math.floor((p.scoreNum || 0) / 100)
+      }))
     })
   },
 
