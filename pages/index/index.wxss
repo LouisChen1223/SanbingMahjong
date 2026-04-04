@@ -65,12 +65,35 @@
   align-items: center;
 }
 
+.sign-btn {
+  width: 60rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 8rpx 0 0 8rpx;
+  margin-right: -1rpx;
+}
+
+.sign-btn.positive {
+  background: #e8f5e9;
+  color: #1AAD19;
+  border: 1rpx solid #1AAD19;
+}
+
+.sign-btn.negative {
+  background: #ffebee;
+  color: #E64340;
+  border: 1rpx solid #E64340;
+}
+
 .score-input {
   width: 120rpx;
   height: 70rpx;
   padding: 0 20rpx;
   border: 1rpx solid #ddd;
-  border-radius: 8rpx 0 0 8rpx;
+  border-radius: 0;
   font-size: 28rpx;
   text-align: center;
 }

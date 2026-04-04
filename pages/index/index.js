@@ -9,10 +9,10 @@ Page({
   data: {
     windPositions: ['东', '南', '西', '北'],
     players: [
-      { name: '', score: '' },
-      { name: '', score: '' },
-      { name: '', score: '' },
-      { name: '', score: '' }
+      { name: '', score: '', isNegative: false },
+      { name: '', score: '', isNegative: false },
+      { name: '', score: '', isNegative: false },
+      { name: '', score: '', isNegative: false }
     ],
     result: [],
     loading: false
@@ -40,12 +40,21 @@ Page({
     })
   },
 
+  // 切换正负号
+  toggleNegative(e) {
+    const index = e.currentTarget.dataset.index
+    const currentValue = this.data.players[index].isNegative || false
+    this.setData({
+      [`players[${index}].isNegative`]: !currentValue
+    })
+  },
+
   // 核心算法：计算平分马点
   calculateScores(players) {
     let rankedPlayers = players.map((p, originalIndex) => ({
       ...p,
       originalIndex,
-      scoreNum: (parseInt(p.score) || 0) * 100, // 用户输入百位，程序补齐两个零
+      scoreNum: (parseInt(p.score) || 0) * 100 * (p.isNegative ? -1 : 1), // 用户输入百位，程序补齐两个零，支持负分
       rawScore: 0,
       horsePoint: 0,
       finalScore: 0
