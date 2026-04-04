@@ -1,7 +1,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/rank/rank"
+    "pages/rank/rank",
+    "pages/history/history"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -21,6 +22,10 @@
       {
         "pagePath": "pages/rank/rank",
         "text": "排行榜"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "记录"
       }
     ]
   },

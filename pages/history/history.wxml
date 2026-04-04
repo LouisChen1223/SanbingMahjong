@@ -1,0 +1,49 @@
+<!--history.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">对局记录</text>
+  </view>
+
+  <view class="game-list" wx:if="{{!editingGame}}">
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    
+    <view wx:if="{{!loading && games.length === 0}}" class="empty">
+      暂无对局记录
+    </view>
+
+    <view class="game-item" wx:for="{{games}}" wx:key="_id">
+      <view class="game-header">
+        <text class="game-time">{{item.timeStr}}</text>
+        <button class="edit-btn" data-id="{{item._id}}" bindtap="onEditGame">修改</button>
+      </view>
+      <view class="game-players">
+        <view class="player-row" wx:for="{{item.players}}" wx:for-item="player" wx:key="name">
+          <text class="player-name">{{player.name}}</text>
+          <text class="player-score">{{player.score}}00</text>
+          <text class="player-result" wx:if="{{item.result[index]}}">
+            ({{item.result[index].finalScore > 0 ? '+' : ''}}{{item.result[index].finalScore}})
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 修改界面 -->
+  <view class="edit-section" wx:if="{{editingGame}}">
+    <view class="section-title">修改对局</view>
+    <view class="edit-players">
+      <view class="edit-player-item" wx:for="{{editPlayers}}" wx:key="index">
+        <text class="player-label">玩家{{index + 1}}</text>
+        <input class="name-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="onEditName" />
+        <view class="score-input-wrapper">
+          <input class="score-input" placeholder="得点" type="number" value="{{item.score}}" data-index="{{index}}" bindinput="onEditScore" />
+          <text class="score-suffix">00</text>
+        </view>
+      </view>
+    </view>
+    <view class="edit-buttons">
+      <button class="cancel-btn" bindtap="onCancelEdit">取消</button>
+      <button class="confirm-btn" bindtap="onConfirmEdit">确认修改</button>
+    </view>
+  </view>
+</view>

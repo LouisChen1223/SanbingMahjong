@@ -119,10 +119,22 @@ Page({
     const _ = db.command
     const playersCollection = db.collection('players')
     
-    // 计算顺位（result已按得点排序）
-    result.forEach((p, index) => {
-      p.rank = index + 1 // 1/2/3/4位
-    })
+    // 计算顺位（result已按得点排序，同分共享高位次）
+    // 例：30000/30000/20000/20000 → 1位/1位/3位/3位
+    let i = 0
+    while (i < result.length) {
+      let j = i + 1
+      // 找出所有与第i位同分的玩家
+      while (j < result.length && result[j].scoreNum === result[i].scoreNum) {
+        j++
+      }
+      // 从i到j-1的玩家共享第i+1位（高位次）
+      const sharedRank = i + 1
+      for (let k = i; k < j; k++) {
+        result[k].rank = sharedRank
+      }
+      i = j
+    }
     
     console.log('开始更新玩家数据, 共', result.length, '位玩家')
     
@@ -192,12 +204,43 @@ Page({
     }
     console.log('所有玩家更新完成')
     
+    // 保存对局记录到games集合
+    await this.saveGameRecord(result, players)
+    
     // 通知rank页面刷新数据
     const pages = getCurrentPages()
     const rankPage = pages.find(p => p.route === 'pages/rank/rank')
     if (rankPage && rankPage.manualRefresh) {
       console.log('触发rank页面手动刷新')
       rankPage.manualRefresh()
+    }
+  },
+
+  // 保存对局记录
+  async saveGameRecord(result, players) {
+    const app = getApp()
+    const db = app.db
+    
+    try {
+      await db.collection('games').add({
+        data: {
+          players: players.map(p => ({
+            name: p.name,
+            score: p.score,
+            scoreNum: (parseInt(p.score) || 0) * 100
+          })),
+          result: result.map(p => ({
+            name: p.name,
+            scoreNum: p.scoreNum,
+            finalScore: p.finalScore,
+            rank: p.rank
+          })),
+          create_time: db.serverDate()
+        }
+      })
+      console.log('对局记录保存成功')
+    } catch (err) {
+      console.error('保存对局记录失败:', err)
     }
   },
 

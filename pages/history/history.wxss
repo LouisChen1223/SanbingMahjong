@@ -1,0 +1,166 @@
+/* history.wxss */
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.header {
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.game-list {
+  margin-top: 20rpx;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.game-item {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.game-time {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.edit-btn {
+  font-size: 24rpx;
+  padding: 8rpx 24rpx;
+  background: #1AAD19;
+  color: #fff;
+  border-radius: 20rpx;
+}
+
+.game-players {
+  padding-top: 16rpx;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+  font-size: 28rpx;
+}
+
+.player-name {
+  flex: 1;
+  color: #333;
+}
+
+.player-score {
+  color: #666;
+  margin-right: 16rpx;
+}
+
+.player-result {
+  font-size: 26rpx;
+  color: #1AAD19;
+}
+
+.player-result:contains('-') {
+  color: #e64340;
+}
+
+/* 修改界面 */
+.edit-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+.edit-players {
+  margin-bottom: 30rpx;
+}
+
+.edit-player-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.player-label {
+  width: 100rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.name-input {
+  flex: 1;
+  height: 60rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+}
+
+.score-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.score-input {
+  width: 120rpx;
+  height: 60rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  text-align: right;
+}
+
+.score-suffix {
+  font-size: 28rpx;
+  color: #666;
+  margin-left: 4rpx;
+}
+
+.edit-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30rpx;
+}
+
+.cancel-btn {
+  flex: 1;
+  margin-right: 20rpx;
+  background: #f5f5f5;
+  color: #666;
+}
+
+.confirm-btn {
+  flex: 1;
+  background: #1AAD19;
+  color: #fff;
+}
