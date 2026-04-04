@@ -146,7 +146,8 @@ Page({
   async revertGameData(game) {
     const playersCollection = this.db.collection('players')
     
-    for (let p of game.result) {
+    // 使用game.players而不是game.result（因为saveGameRecord只保存players）
+    for (let p of game.players) {
       try {
         const playerDoc = playersCollection.doc(p.name)
         const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
