@@ -32,10 +32,16 @@ Page({
     this.setData({ currentTab: tab })
   },
 
-  // 格式化分数为一位小数
+  // 格式化分数为一位小数（用于总分）
   formatScore(score) {
     if (score === null || score === undefined) return '0.0'
     return Number(score).toFixed(1)
+  },
+
+  // 格式化打点为整数（用于最高/最低打点）
+  formatInteger(score) {
+    if (score === null || score === undefined) return '0'
+    return Math.round(Number(score)).toString()
   },
 
   // 计算各项排行榜数据
@@ -71,7 +77,7 @@ Page({
       .filter(p => p.max_score && p.max_score > 0)
       .map(p => ({
         ...p,
-        maxScoreStr: this.formatScore(p.max_score)
+        maxScoreStr: this.formatInteger(p.max_score)
       }))
       .sort((a, b) => (b.max_score || 0) - (a.max_score || 0))
     
@@ -80,7 +86,7 @@ Page({
       .filter(p => p.min_score && p.min_score > 0)
       .map(p => ({
         ...p,
-        minScoreStr: this.formatScore(p.min_score)
+        minScoreStr: this.formatInteger(p.min_score)
       }))
       .sort((a, b) => (a.min_score || 999999) - (b.min_score || 999999))
     
