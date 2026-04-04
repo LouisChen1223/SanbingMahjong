@@ -124,55 +124,70 @@ Page({
       p.rank = index + 1 // 1/2/3/4位
     })
     
-    for (let p of result) {
-      const { data } = await playersCollection.where({ name: p.name }).limit(1).get()
+    console.log('开始更新玩家数据, 共', result.length, '位玩家')
+    
+    for (let i = 0; i < result.length; i++) {
+      const p = result[i]
+      console.log(`处理第${i+1}位玩家:`, p.name, '顺位:', p.rank, '得分:', p.finalScore)
       
-      // 准备顺位更新字段
-      const rankField = `rank_${p.rank}_count`
-      
-      if (data.length === 0) {
-        // 新玩家
-        await playersCollection.add({
-          data: {
-            name: p.name,
-            total_score: p.finalScore,
-            games_played: 1,
-            rank_1_count: p.rank === 1 ? 1 : 0,
-            rank_2_count: p.rank === 2 ? 1 : 0,
-            rank_3_count: p.rank === 3 ? 1 : 0,
-            rank_4_count: p.rank === 4 ? 1 : 0,
-            max_score: p.scoreNum,
-            min_score: p.scoreNum,
-            create_time: db.serverDate(),
+      try {
+        const { data } = await playersCollection.where({ name: p.name }).limit(1).get()
+        console.log(`查询玩家 ${p.name} 结果:`, data.length, '条记录')
+        
+        // 准备顺位更新字段
+        const rankField = `rank_${p.rank}_count`
+        
+        if (data.length === 0) {
+          // 新玩家
+          console.log(`新增玩家: ${p.name}`)
+          await playersCollection.add({
+            data: {
+              name: p.name,
+              total_score: p.finalScore,
+              games_played: 1,
+              rank_1_count: p.rank === 1 ? 1 : 0,
+              rank_2_count: p.rank === 2 ? 1 : 0,
+              rank_3_count: p.rank === 3 ? 1 : 0,
+              rank_4_count: p.rank === 4 ? 1 : 0,
+              max_score: p.scoreNum,
+              min_score: p.scoreNum,
+              create_time: db.serverDate(),
+              update_time: db.serverDate()
+            }
+          })
+          console.log(`新增玩家 ${p.name} 成功`)
+        } else {
+          // 已有玩家
+          const playerId = data[0]._id
+          const existingData = data[0]
+          const updateData = {
+            total_score: _.inc(p.finalScore),
+            games_played: _.inc(1),
+            [rankField]: _.inc(1),
             update_time: db.serverDate()
           }
-        })
-      } else {
-        // 已有玩家
-        const playerId = data[0]._id
-        const existingData = data[0]
-        const updateData = {
-          total_score: _.inc(p.finalScore),
-          games_played: _.inc(1),
-          [rankField]: _.inc(1),
-          update_time: db.serverDate()
+          
+          // 更新最高/最低打点
+          const currentMax = existingData.max_score || 0
+          const currentMin = existingData.min_score || 999999
+          if (p.scoreNum > currentMax) {
+            updateData.max_score = p.scoreNum
+          }
+          if (p.scoreNum < currentMin) {
+            updateData.min_score = p.scoreNum
+          }
+          
+          console.log(`更新玩家 ${p.name}, ID: ${playerId}, 数据:`, updateData)
+          await playersCollection.doc(playerId).update({
+            data: updateData
+          })
+          console.log(`更新玩家 ${p.name} 成功`)
         }
-        
-        // 更新最高/最低打点
-        const currentMax = existingData.max_score || 0
-        const currentMin = existingData.min_score || 999999
-        if (p.scoreNum > currentMax) {
-          updateData.max_score = p.scoreNum
-        }
-        if (p.scoreNum < currentMin) {
-          updateData.min_score = p.scoreNum
-        }
-        
-        await playersCollection.doc(playerId).update({
-          data: updateData
-        })
+      } catch (err) {
+        console.error(`更新玩家 ${p.name} 失败:`, err)
       }
     }
+    console.log('所有玩家更新完成')
   },
 
   resetInputs() {
