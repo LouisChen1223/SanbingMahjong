@@ -32,8 +32,20 @@ Page({
     this.setData({ currentTab: tab })
   },
 
+  // 格式化分数为一位小数
+  formatScore(score) {
+    if (score === null || score === undefined) return '0.0'
+    return Number(score).toFixed(1)
+  },
+
   // 计算各项排行榜数据
   calculateRankLists(players) {
+    // 总分榜 - 添加格式化字段
+    const formattedPlayers = players.map(p => ({
+      ...p,
+      totalScoreStr: this.formatScore(p.total_score)
+    }))
+
     // 一位率榜
     const rate1List = players
       .filter(p => p.games_played > 0)
@@ -54,17 +66,25 @@ Page({
       }))
       .sort((a, b) => b.avoid4 - a.avoid4)
     
-    // 最高打点榜
+    // 最高打点榜 - 添加格式化字段
     const maxScoreList = players
       .filter(p => p.max_score && p.max_score > 0)
+      .map(p => ({
+        ...p,
+        maxScoreStr: this.formatScore(p.max_score)
+      }))
       .sort((a, b) => (b.max_score || 0) - (a.max_score || 0))
     
-    // 最低打点榜
+    // 最低打点榜 - 添加格式化字段
     const minScoreList = players
       .filter(p => p.min_score && p.min_score > 0)
+      .map(p => ({
+        ...p,
+        minScoreStr: this.formatScore(p.min_score)
+      }))
       .sort((a, b) => (a.min_score || 999999) - (b.min_score || 999999))
     
-    return { rate1List, avoid4List, maxScoreList, minScoreList }
+    return { formattedPlayers, rate1List, avoid4List, maxScoreList, minScoreList }
   },
 
   // 初始化实时监听
@@ -91,9 +111,12 @@ Page({
             // 计算各项排行榜
             const rankLists = that.calculateRankLists(players)
             that.setData({
-              players: players,
+              players: rankLists.formattedPlayers,
               connected: true,
-              ...rankLists
+              rate1List: rankLists.rate1List,
+              avoid4List: rankLists.avoid4List,
+              maxScoreList: rankLists.maxScoreList,
+              minScoreList: rankLists.minScoreList
             })
           } else if (snapshot.docs && snapshot.docs.length === 0) {
             // 空数据情况
@@ -131,8 +154,11 @@ Page({
       
       const rankLists = this.calculateRankLists(data)
       this.setData({ 
-        players: data,
-        ...rankLists
+        players: rankLists.formattedPlayers,
+        rate1List: rankLists.rate1List,
+        avoid4List: rankLists.avoid4List,
+        maxScoreList: rankLists.maxScoreList,
+        minScoreList: rankLists.minScoreList
       })
     } catch (err) {
       console.error('刷新失败:', err)

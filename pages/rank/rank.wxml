@@ -31,7 +31,7 @@
       </view>
       <view class="score-section">
         <text class="total-score {{item.total_score >= 0 ? 'positive' : 'negative'}}">
-          {{item.total_score >= 0 ? '+' : ''}}{{item.total_score}}
+          {{item.total_score >= 0 ? '+' : ''}}{{item.totalScoreStr}}
         </text>
         <text class="score-label">总分</text>
       </view>
@@ -86,7 +86,7 @@
         <text class="games-count">对局: {{item.games_played}}场</text>
       </view>
       <view class="score-section">
-        <text class="total-score positive">{{item.max_score}}</text>
+        <text class="total-score positive">{{item.maxScoreStr}}</text>
         <text class="score-label">最高打点</text>
       </view>
     </view>
@@ -104,7 +104,7 @@
         <text class="games-count">对局: {{item.games_played}}场</text>
       </view>
       <view class="score-section">
-        <text class="total-score negative">{{item.min_score}}</text>
+        <text class="total-score negative">{{item.minScoreStr}}</text>
         <text class="score-label">最低打点</text>
       </view>
     </view>
