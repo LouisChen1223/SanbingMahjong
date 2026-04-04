@@ -143,6 +143,25 @@
   text-align: right;
 }
 
+.sign-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #666;
+  margin-right: 8rpx;
+}
+
+.sign-btn.negative {
+  background: #fff0f0;
+  color: #e64340;
+}
+
 .score-suffix {
   font-size: 28rpx;
   color: #666;
@@ -166,4 +185,14 @@
   flex: 1;
   background: #1AAD19;
   color: #fff;
+}
+
+/* 删除按钮 */
+.delete-btn {
+  font-size: 24rpx;
+  padding: 8rpx 24rpx;
+  background: #e64340;
+  color: #fff;
+  border-radius: 20rpx;
+  margin-left: 16rpx;
 }

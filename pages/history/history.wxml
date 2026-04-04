@@ -14,7 +14,10 @@
     <view class="game-item" wx:for="{{games}}" wx:key="_id">
       <view class="game-header">
         <text class="game-time">{{item.timeStr}}</text>
-        <button class="edit-btn" data-id="{{item._id}}" bindtap="onEditGame">修改</button>
+        <view class="game-actions">
+          <button class="delete-btn" data-id="{{item._id}}" bindtap="onDeleteGame">删除</button>
+          <button class="edit-btn" data-id="{{item._id}}" bindtap="onEditGame">修改</button>
+        </view>
       </view>
       <view class="game-players">
         <view class="player-row" wx:for="{{item.players}}" wx:for-item="player" wx:key="name">
@@ -36,6 +39,7 @@
         <text class="player-label">玩家{{index + 1}}</text>
         <input class="name-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="onEditName" />
         <view class="score-input-wrapper">
+          <button class="sign-btn {{item.isNegative ? 'negative' : 'positive'}}" data-index="{{index}}" bindtap="toggleEditNegative">{{item.isNegative ? '-' : '+'}}</button>
           <input class="score-input" placeholder="得点" type="number" value="{{item.score}}" data-index="{{index}}" bindinput="onEditScore" />
           <text class="score-suffix">00</text>
         </view>

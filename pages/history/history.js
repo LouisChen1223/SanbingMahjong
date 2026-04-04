@@ -54,11 +54,23 @@ Page({
 
     this.setData({
       editingGame: game,
-      editPlayers: game.players.map(p => ({ 
-        ...p, 
-        score: Math.floor((p.scoreNum || 0) / 100)
-      }))
+      editPlayers: game.players.map(p => { 
+        const rawScore = Math.floor((p.scoreNum || 0) / 100)
+        return {
+          ...p, 
+          score: Math.abs(rawScore), // 数字框始终显示正数
+          isNegative: rawScore < 0 // 如果原分数是负数，按钮显示-
+        }
+      })
     })
+  },
+
+  // 切换正负号
+  toggleEditNegative(e) {
+    const index = e.currentTarget.dataset.index
+    const editPlayers = this.data.editPlayers
+    editPlayers[index].isNegative = !editPlayers[index].isNegative
+    this.setData({ editPlayers })
   },
 
   // 修改玩家姓名
@@ -84,6 +96,45 @@ Page({
     this.setData({ editingGame: null, editPlayers: [] })
   },
 
+  // 删除对局
+  onDeleteGame(e) {
+    const gameId = e.currentTarget.dataset.id
+    const game = this.data.games.find(g => g._id === gameId)
+    if (!game) return
+
+    wx.showModal({
+      title: '确认删除',
+      content: '删除后将撤销该对局的所有玩家数据，确定要删除吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' })
+          try {
+            // 撤销玩家数据
+            await this.revertGameData(game)
+            // 删除对局记录
+            await this.db.collection('games').doc(gameId).remove()
+            
+            wx.hideLoading()
+            wx.showToast({ title: '删除成功', icon: 'success' })
+            
+            this.loadGames()
+            
+            // 刷新排行榜页面
+            const pages = getCurrentPages()
+            const rankPage = pages.find(p => p.route === 'pages/rank/rank')
+            if (rankPage && rankPage.manualRefresh) {
+              rankPage.manualRefresh()
+            }
+          } catch (err) {
+            wx.hideLoading()
+            console.error('删除失败:', err)
+            wx.showToast({ title: '删除失败', icon: 'none' })
+          }
+        }
+      }
+    })
+  },
+
   // 确认修改
   async onConfirmEdit() {
     const { editingGame, editPlayers } = this.data
@@ -98,7 +149,9 @@ Page({
         wx.showToast({ title: '得点必须是数字', icon: 'none' })
         return
       }
-      totalScore += parseInt(p.score)
+      // 考虑isNegative计算实际分数
+      const actualScore = p.isNegative ? -parseInt(p.score) : parseInt(p.score)
+      totalScore += actualScore
     }
     if (totalScore !== 1000) {
       wx.showToast({ title: '总点数应为1000', icon: 'none' })
@@ -112,12 +165,20 @@ Page({
       const newResult = this.calculateScores(editPlayers)
       await this.updatePlayerScores(newResult)
       
+      // 从newResult中获取finalScore和rank信息
+      const playerResults = {}
+      newResult.forEach(r => {
+        playerResults[r.name] = { finalScore: r.finalScore, rank: r.rank }
+      })
+      
       await this.db.collection('games').doc(editingGame._id).update({
         data: {
           players: editPlayers.map(p => ({
             name: p.name,
             score: p.score,
-            scoreNum: (parseInt(p.score) || 0) * 100
+            scoreNum: (parseInt(p.score) || 0) * 100,
+            finalScore: playerResults[p.name]?.finalScore || 0,
+            rank: playerResults[p.name]?.rank || 0
           })),
           result: newResult,
           update_time: this.db.serverDate()
@@ -174,14 +235,19 @@ Page({
     const START_POINT = 25000
     const HORSE_POINTS = [50, 10, -20, -40]
     
-    let rankedPlayers = players.map((p, originalIndex) => ({
-      ...p,
-      originalIndex,
-      scoreNum: (parseInt(p.score) || 0) * 100,
-      rawScore: 0,
-      horsePoint: 0,
-      finalScore: 0
-    }))
+    let rankedPlayers = players.map((p, originalIndex) => {
+      // 考虑isNegative计算实际分数
+      const baseScore = parseInt(p.score) || 0
+      const actualScore = p.isNegative ? -baseScore : baseScore
+      return {
+        ...p,
+        originalIndex,
+        scoreNum: actualScore * 100,
+        rawScore: 0,
+        horsePoint: 0,
+        finalScore: 0
+      }
+    })
     
     rankedPlayers.sort((a, b) => b.scoreNum - a.scoreNum)
     rankedPlayers.forEach(p => {
