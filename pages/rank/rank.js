@@ -78,9 +78,12 @@ Page({
       .watch({
         onChange: function(snapshot) {
           console.log('数据变更:', snapshot)
-          
-          // 直接使用snapshot.docs作为完整数据源，避免增量更新的竞态问题
+          console.log('snapshot.docs数量:', snapshot.docs ? snapshot.docs.length : 0)
           if (snapshot.docs && snapshot.docs.length > 0) {
+            // 打印每个玩家的数据
+            snapshot.docs.forEach((p, i) => {
+              console.log(`玩家${i+1}:`, p.name, '对局:', p.games_played, '总分:', p.total_score)
+            })
             // 创建数组副本，避免直接修改snapshot.docs
             const players = [...snapshot.docs]
             // 按总分排序（确保顺序正确）
