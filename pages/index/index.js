@@ -131,16 +131,17 @@ Page({
       console.log(`处理第${i+1}位玩家:`, p.name, '顺位:', p.rank, '得分:', p.finalScore)
       
       try {
-        const { data } = await playersCollection.where({ name: p.name }).limit(1).get()
-        console.log(`查询玩家 ${p.name} 结果:`, data.length, '条记录')
+        // 使用玩家名字作为_id，保证唯一性
+        const playerDoc = playersCollection.doc(p.name)
+        const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
         
         // 准备顺位更新字段
         const rankField = `rank_${p.rank}_count`
         
-        if (data.length === 0) {
-          // 新玩家
+        if (!existingData) {
+          // 新玩家 - 使用set创建，_id为玩家名字
           console.log(`新增玩家: ${p.name}`)
-          await playersCollection.add({
+          await playerDoc.set({
             data: {
               name: p.name,
               total_score: p.finalScore,
@@ -157,9 +158,7 @@ Page({
           })
           console.log(`新增玩家 ${p.name} 成功`)
         } else {
-          // 已有玩家
-          const playerId = data[0]._id
-          const existingData = data[0]
+          // 已有玩家 - 更新
           const updateData = {
             total_score: _.inc(p.finalScore),
             games_played: _.inc(1),
@@ -177,8 +176,8 @@ Page({
             updateData.min_score = p.scoreNum
           }
           
-          console.log(`更新玩家 ${p.name}, ID: ${playerId}, 数据:`, updateData)
-          await playersCollection.doc(playerId).update({
+          console.log(`更新玩家 ${p.name}, 数据:`, updateData)
+          await playerDoc.update({
             data: updateData
           })
           console.log(`更新玩家 ${p.name} 成功`)
