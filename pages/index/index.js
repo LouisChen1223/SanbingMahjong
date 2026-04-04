@@ -205,7 +205,7 @@ Page({
     console.log('所有玩家更新完成')
     
     // 保存对局记录到games集合
-    await this.saveGameRecord(result, players)
+    await this.saveGameRecord(result)
     
     // 通知rank页面刷新数据
     const pages = getCurrentPages()
@@ -217,19 +217,14 @@ Page({
   },
 
   // 保存对局记录
-  async saveGameRecord(result, players) {
+  async saveGameRecord(result) {
     const app = getApp()
     const db = app.db
     
     try {
       await db.collection('games').add({
         data: {
-          players: players.map(p => ({
-            name: p.name,
-            score: p.score,
-            scoreNum: (parseInt(p.score) || 0) * 100
-          })),
-          result: result.map(p => ({
+          players: result.map(p => ({
             name: p.name,
             scoreNum: p.scoreNum,
             finalScore: p.finalScore,
