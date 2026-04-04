@@ -103,7 +103,9 @@ Page({
         wx.showToast({ title: '得点必须是数字', icon: 'none' })
         return
       }
-      totalScore += parseInt(p.score) // 累加用户输入的百位数
+      let scoreValue = parseInt(p.score) || 0
+      if (p.isNegative) scoreValue = -scoreValue
+      totalScore += scoreValue // 累加用户输入的百位数（支持负数）
     }
     if (totalScore !== 1000) {
       wx.showToast({ title: '总点数应为1000(百位)，当前为' + totalScore, icon: 'none', duration: 2000 })
