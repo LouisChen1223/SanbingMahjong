@@ -79,10 +79,13 @@
 
 .player-result {
   font-size: 26rpx;
+}
+
+.player-result.positive {
   color: #1AAD19;
 }
 
-.player-result:contains('-') {
+.player-result.negative {
   color: #e64340;
 }
 
