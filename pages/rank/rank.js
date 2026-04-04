@@ -80,8 +80,9 @@ Page({
           console.log('数据变更:', snapshot)
           
           // 直接使用snapshot.docs作为完整数据源，避免增量更新的竞态问题
-          if (snapshot.docs && snapshot.docs.length >= 0) {
-            const players = snapshot.docs
+          if (snapshot.docs && snapshot.docs.length > 0) {
+            // 创建数组副本，避免直接修改snapshot.docs
+            const players = [...snapshot.docs]
             // 按总分排序（确保顺序正确）
             players.sort((a, b) => b.total_score - a.total_score)
             // 计算各项排行榜
@@ -90,6 +91,16 @@ Page({
               players: players,
               connected: true,
               ...rankLists
+            })
+          } else if (snapshot.docs && snapshot.docs.length === 0) {
+            // 空数据情况
+            that.setData({
+              players: [],
+              connected: true,
+              rate1List: [],
+              avoid4List: [],
+              maxScoreList: [],
+              minScoreList: []
             })
           }
         },
