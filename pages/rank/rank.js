@@ -93,6 +93,35 @@ Page({
     return { formattedPlayers, rate1List, avoid4List, maxScoreList, minScoreList }
   },
 
+  // 手动刷新数据（结算完成后调用）
+  manualRefresh() {
+    console.log('手动刷新排行榜数据')
+    const that = this
+    this.db.collection('players')
+      .orderBy('total_score', 'desc')
+      .limit(100)
+      .get()
+      .then(res => {
+        if (res.data && res.data.length > 0) {
+          const players = res.data
+          players.sort((a, b) => b.total_score - a.total_score)
+          const rankLists = that.calculateRankLists(players)
+          that.setData({
+            players: rankLists.formattedPlayers,
+            connected: true,
+            rate1List: rankLists.rate1List,
+            avoid4List: rankLists.avoid4List,
+            maxScoreList: rankLists.maxScoreList,
+            minScoreList: rankLists.minScoreList
+          })
+          console.log('手动刷新完成，玩家数:', players.length)
+        }
+      })
+      .catch(err => {
+        console.error('手动刷新失败:', err)
+      })
+  },
+
   // 初始化实时监听
   initWatcher() {
     const that = this

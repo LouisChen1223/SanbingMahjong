@@ -158,11 +158,15 @@ Page({
           })
           console.log(`新增玩家 ${p.name} 成功`)
         } else {
-          // 已有玩家 - 更新
+          // 已有玩家 - 更新（使用直接set替代_.inc()排查bug）
+          const newTotalScore = (existingData.total_score || 0) + p.finalScore
+          const newGamesPlayed = (existingData.games_played || 0) + 1
+          const newRankCount = (existingData[rankField] || 0) + 1
+          
           const updateData = {
-            total_score: _.inc(p.finalScore),
-            games_played: _.inc(1),
-            [rankField]: _.inc(1),
+            total_score: newTotalScore,
+            games_played: newGamesPlayed,
+            [rankField]: newRankCount,
             update_time: db.serverDate()
           }
           
@@ -176,7 +180,7 @@ Page({
             updateData.min_score = p.scoreNum
           }
           
-          console.log(`更新玩家 ${p.name}, 数据:`, updateData)
+          console.log(`更新玩家 ${p.name}, 原数据:`, existingData.total_score, '新数据:', newTotalScore)
           await playerDoc.update({
             data: updateData
           })
@@ -187,6 +191,14 @@ Page({
       }
     }
     console.log('所有玩家更新完成')
+    
+    // 通知rank页面刷新数据
+    const pages = getCurrentPages()
+    const rankPage = pages.find(p => p.route === 'pages/rank/rank')
+    if (rankPage && rankPage.manualRefresh) {
+      console.log('触发rank页面手动刷新')
+      rankPage.manualRefresh()
+    }
   },
 
   resetInputs() {
