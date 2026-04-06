@@ -1,75 +1,30 @@
-<!--pages/team-manage/team-manage.wxml-->
 <view class="container">
   <view class="header">
     <text class="title">队伍管理</text>
-  </view>
-
-  <!-- 创建队伍 -->
-  <view class="create-section" wx:if="{{!myTeam}}">
-    <text class="section-title">创建新队伍</text>
-    <input class="team-name-input" placeholder="输入队伍名称" value="{{newTeamName}}" bindinput="onTeamNameInput" />
-    <button class="create-btn" bindtap="createTeam" loading="{{creating}}">创建队伍</button>
-  </view>
-
-  <!-- 我的队伍 -->
-  <view class="my-team-section" wx:if="{{myTeam}}">
-    <text class="section-title">我的队伍</text>
-    <view class="team-card">
-      <view class="team-header">
-        <text class="team-name">{{myTeam.name}}</text>
-        <text class="captain-tag" wx:if="{{isCaptain}}">队长</text>
-      </view>
-      <view class="team-score">总分: {{myTeam.total_score || 0}}</view>
-      <view class="team-games">场次: {{myTeam.games_played || 0}}</view>
+    <view class="header-btns">
+      <view class="clear-btn" bindtap="clearAllData">清空数据</view>
     </view>
+  </view>
 
-    <!-- 队员列表 -->
-    <view class="members-section">
-      <text class="section-title">队员列表</text>
-      <view class="member-list">
-        <view class="member-item" wx:for="{{members}}" wx:key="_id">
-          <text class="member-name">{{item.name || '未命名'}}</text>
-          <text class="member-role {{item.role === 'captain' ? 'captain' : ''}}">{{item.role === 'captain' ? '队长' : '队员'}}</text>
-          <view class="member-actions" wx:if="{{isCaptain && item.role !== 'captain'}}">
-            <text class="action-btn remove" bindtap="removeMember" data-id="{{item._id}}">移除</text>
-          </view>
+  <view class="team-list">
+    <text class="section-title">队伍列表</text>
+    <view class="team-card" wx:for="{{teams}}" wx:key="_id">
+      <view class="team-info-row">
+        <text class="team-id">ID: {{item._id}}</text>
+        <input class="team-name-input" placeholder="未命名" value="{{item.team_name}}" data-team-id="{{item._id}}" bindinput="onTeamNameInput" bindblur="updateTeamName" />
+      </view>
+      
+      <view class="team-members">
+        <text class="member-label">当前队员:</text>
+        <view class="member-tags">
+          <text class="member-name" wx:for="{{item.members}}" wx:for-item="member" wx:key="*this">{{member}} </text>
         </view>
       </view>
-    </view>
 
-    <!-- 邀请队员 -->
-    <view class="invite-section" wx:if="{{isCaptain}}">
-      <text class="section-title">邀请队员</text>
-      <view class="invite-code-box">
-        <text class="invite-label">邀请码:</text>
-        <text class="invite-code">{{myTeam.invite_code}}</text>
-        <text class="copy-btn" bindtap="copyInviteCode">复制</text>
+      <view class="team-actions">
+        <input class="new-member-input" placeholder="输入新队员姓名" value="{{item.newMemberId}}" data-team-id="{{item._id}}" bindinput="onNewMemberInput" />
+        <button class="add-member-btn" size="mini" data-team-id="{{item._id}}" bindtap="addMember">新增组员</button>
       </view>
-      <text class="invite-tip">分享邀请码给队友，让他们加入队伍</text>
     </view>
-
-    <!-- 加入队伍 -->
-    <view class="join-section" wx:if="{{!myTeam}}">
-      <text class="section-title">加入队伍</text>
-      <input class="invite-input" placeholder="输入邀请码" value="{{inviteCode}}" bindinput="onInviteCodeInput" />
-      <button class="join-btn" bindtap="joinTeam" loading="{{joining}}">加入队伍</button>
-    </view>
-
-    <!-- 退出队伍 -->
-    <view class="quit-section">
-      <button class="quit-btn" bindtap="quitTeam" wx:if="{{!isCaptain}}">退出队伍</button>
-      <button class="quit-btn danger" bindtap="dissolveTeam" wx:if="{{isCaptain}}">解散队伍</button>
-    </view>
-  </view>
-
-  <!-- 加入队伍（无队伍时显示） -->
-  <view class="join-section" wx:if="{{!myTeam}}">
-    <text class="section-title">加入队伍</text>
-    <input class="invite-input" placeholder="输入邀请码" value="{{inviteCode}}" bindinput="onInviteCodeInput" />
-    <button class="join-btn" bindtap="joinTeam" loading="{{joining}}">加入队伍</button>
-  </view>
-
-  <view class="nav-section">
-    <navigator url="/pages/team-game/team-game" class="nav-link">返回团队战</navigator>
   </view>
 </view>

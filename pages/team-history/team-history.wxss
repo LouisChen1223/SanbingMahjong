@@ -1,0 +1,224 @@
+/* pages/team-history/team-history.wxss - 团队赛对局历史页面样式 */
+
+/* 全局样式 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20rpx;
+  box-sizing: border-box;
+  padding-bottom: 120rpx;
+}
+
+/* 头部 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+  padding: 20rpx 0;
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+}
+
+.back-icon {
+  font-size: 36rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+  flex: 1;
+  text-align: center;
+  margin: 0 20rpx;
+}
+
+.header-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.refresh-btn {
+  padding: 16rpx 32rpx;
+  background: rgba(255,255,255,0.2);
+  border-radius: 30rpx;
+  color: #fff;
+  font-size: 28rpx;
+}
+
+/* 对局历史列表 */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.game-card {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20rpx;
+  overflow: hidden;
+  backdrop-filter: blur(10rpx);
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-5rpx);
+}
+
+.game-header {
+  background: rgba(255,255,255,0.2);
+  padding: 20rpx;
+  border-bottom: 1rpx solid rgba(255,255,255,0.1);
+}
+
+.game-date {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+.game-body {
+  padding: 20rpx;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,0.05);
+}
+
+.player-row:last-child {
+  border-bottom: none;
+}
+
+.player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5rpx;
+  display: block;
+}
+
+.player-team {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.player-score {
+  font-size: 36rpx;
+  font-weight: bold;
+  min-width: 120rpx;
+  text-align: right;
+}
+
+.player-score.positive {
+  color: #4CAF50;
+  text-shadow: 0 2rpx 4rpx rgba(76, 175, 80, 0.3);
+}
+
+.player-score.negative {
+  color: #F44336;
+  text-shadow: 0 2rpx 4rpx rgba(244, 67, 54, 0.3);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 20rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.empty-text {
+  font-size: 32rpx;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  opacity: 0.7;
+}
+
+/* 连接状态 */
+.connection-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  margin-top: 30rpx;
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #F44336;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+  background: #4CAF50;
+  animation: none;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* 底部导航栏 */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1rpx solid #e8e8e8;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20rpx 0;
+  z-index: 999;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 10rpx;
+  width: 25%;
+}
+
+.nav-item.active {
+  color: #667eea;
+}
+
+.nav-icon {
+  font-size: 40rpx;
+}
+
+.nav-text {
+  font-size: 24rpx;
+}

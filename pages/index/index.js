@@ -129,7 +129,7 @@ Page({
     const db = app.db
     const _ = db.command
     const playersCollection = db.collection('players')
-    
+
     // 计算顺位（result已按得点排序，同分共享高位次）
     // 例：30000/30000/20000/20000 → 1位/1位/3位/3位
     let i = 0
@@ -146,21 +146,21 @@ Page({
       }
       i = j
     }
-    
+
     console.log('开始更新玩家数据, 共', result.length, '位玩家')
-    
+
     for (let i = 0; i < result.length; i++) {
       const p = result[i]
-      console.log(`处理第${i+1}位玩家:`, p.name, '顺位:', p.rank, '得分:', p.finalScore)
-      
+      console.log(`处理第${i + 1}位玩家:`, p.name, '顺位:', p.rank, '得分:', p.finalScore)
+
       try {
         // 使用玩家名字作为_id，保证唯一性
         const playerDoc = playersCollection.doc(p.name)
         const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
-        
+
         // 准备顺位更新字段
         const rankField = `rank_${p.rank}_count`
-        
+
         if (!existingData) {
           // 新玩家 - 使用set创建，_id为玩家名字
           console.log(`新增玩家: ${p.name}`)
@@ -185,14 +185,14 @@ Page({
           const newTotalScore = (existingData.total_score || 0) + p.finalScore
           const newGamesPlayed = (existingData.games_played || 0) + 1
           const newRankCount = (existingData[rankField] || 0) + 1
-          
+
           const updateData = {
             total_score: newTotalScore,
             games_played: newGamesPlayed,
             [rankField]: newRankCount,
             update_time: db.serverDate()
           }
-          
+
           // 更新最高/最低打点
           const currentMax = existingData.max_score || 0
           const currentMin = existingData.min_score || 999999
@@ -202,7 +202,7 @@ Page({
           if (p.scoreNum < currentMin) {
             updateData.min_score = p.scoreNum
           }
-          
+
           console.log(`更新玩家 ${p.name}, 原数据:`, existingData.total_score, '新数据:', newTotalScore)
           await playerDoc.update({
             data: updateData
@@ -214,10 +214,10 @@ Page({
       }
     }
     console.log('所有玩家更新完成')
-    
+
     // 保存对局记录到games集合
     await this.saveGameRecord(result)
-    
+
     // 通知rank页面刷新数据
     const pages = getCurrentPages()
     const rankPage = pages.find(p => p.route === 'pages/rank/rank')
@@ -231,7 +231,7 @@ Page({
   async saveGameRecord(result) {
     const app = getApp()
     const db = app.db
-    
+
     try {
       await db.collection('games').add({
         data: {
@@ -258,6 +258,21 @@ Page({
         { name: '', score: '' },
         { name: '', score: '' }
       ]
+    })
+  },
+
+  // 确认退出
+  confirmExit() {
+    wx.showModal({
+      title: '确认退出',
+      content: '确定要退出个人赛页面吗？',
+      success: (res) => {
+        if (res.confirm) {
+          wx.navigateBack({
+            delta: 1
+          })
+        }
+      }
     })
   },
 

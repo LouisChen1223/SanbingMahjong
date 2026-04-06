@@ -1,0 +1,223 @@
+<!--pages/team-rank/team-rank.wxml - 团队赛排行榜页面-->
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="confirmExit">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="title">团队赛排行榜</text>
+    <view class="header-btns">
+      <view class="refresh-btn" bindtap="refreshData">刷新</view>
+    </view>
+  </view>
+
+  <!-- 榜单项切换 -->
+  <view class="rank-type-tabs">
+    <view class="rank-type-tab {{rankType === 'team' ? 'active' : ''}}" bindtap="switchRankType" data-type="team">团队榜</view>
+    <view class="rank-type-tab {{rankType === 'personal' ? 'active' : ''}}" bindtap="switchRankType" data-type="personal">个人榜</view>
+  </view>
+
+  <!-- 队伍榜切换标签 -->
+  <view class="tab-container" wx:if="{{rankType === 'team'}}">
+    <view class="tab {{currentTab === 'teamTotal' ? 'active' : ''}}" bindtap="switchTab" data-tab="teamTotal">队伍总分</view>
+    <view class="tab {{currentTab === 'teamRate1' ? 'active' : ''}}" bindtap="switchTab" data-tab="teamRate1">队伍一位率</view>
+    <view class="tab {{currentTab === 'teamAvoid4' ? 'active' : ''}}" bindtap="switchTab" data-tab="teamAvoid4">队伍避四率</view>
+  </view>
+
+  <!-- 个人榜切换标签 -->
+  <view class="tab-container" wx:if="{{rankType === 'personal'}}">
+    <view class="tab {{currentPersonalTab === 'total' ? 'active' : ''}}" bindtap="switchPersonalTab" data-tab="total">总分榜</view>
+    <view class="tab {{currentPersonalTab === 'rate1' ? 'active' : ''}}" bindtap="switchPersonalTab" data-tab="rate1">一位率</view>
+    <view class="tab {{currentPersonalTab === 'avoid4' ? 'active' : ''}}" bindtap="switchPersonalTab" data-tab="avoid4">避四率</view>
+    <view class="tab {{currentPersonalTab === 'max' ? 'active' : ''}}" bindtap="switchPersonalTab" data-tab="max">最高打点</view>
+    <view class="tab {{currentPersonalTab === 'min' ? 'active' : ''}}" bindtap="switchPersonalTab" data-tab="min">最低打点</view>
+  </view>
+
+  <!-- 团队榜内容 -->
+  <view wx:if="{{rankType === 'team'}}">
+    <!-- 队伍总分榜 -->
+    <view class="rank-list" wx:if="{{currentTab === 'teamTotal' && teams.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teams}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.team_name || item._id}}</text>
+          <text class="games-count">对局: {{item.games_played}}场 | 一位: {{item.first_place || 0}} | 二位: {{item.second_place || 0}} | 三位: {{item.third_place || 0}} | 四位: {{item.fourth_place || 0}}</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score {{item.total_score >= 0 ? 'positive' : 'negative'}}">
+            {{item.total_score >= 0 ? '+' : ''}}{{item.totalScoreStr}}
+          </text>
+          <text class="score-label">总分</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 队伍一位率榜 -->
+    <view class="rank-list" wx:if="{{currentTab === 'teamRate1' && teamRate1List.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamRate1List}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.team_name || item._id}}</text>
+          <text class="games-count">一位: {{item.first_place || 0}}场 / 总计: {{item.games_played}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="rate-score">{{item.rate1Str}}</text>
+          <text class="score-label">一位率</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 队伍避四率榜 -->
+    <view class="rank-list" wx:if="{{currentTab === 'teamAvoid4' && teamAvoid4List.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamAvoid4List}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.team_name || item._id}}</text>
+          <text class="games-count">非四位: {{item.games_played - (item.fourth_place || 0)}}场 / 总计: {{item.games_played}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="rate-score">{{item.avoid4Str}}</text>
+          <text class="score-label">避四率</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{teams.length === 0}}">
+      <text class="empty-text">暂无队伍数据</text>
+      <text class="empty-hint">去队伍管理页面创建队伍吧</text>
+    </view>
+  </view>
+
+  <!-- 个人榜内容 -->
+  <view wx:if="{{rankType === 'personal'}}">
+    <!-- 个人总分榜 -->
+    <view class="rank-list" wx:if="{{currentPersonalTab === 'total' && teamPlayers.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayers}}" wx:key="name">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}} ({{item.team}})</text>
+          <text class="games-count">对局: {{item.games}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score {{item.totalScore >= 0 ? 'positive' : 'negative'}}">
+            {{item.totalScore >= 0 ? '+' : ''}}{{item.totalScoreStr}}
+          </text>
+          <text class="score-label">总分</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 个人一位率榜 -->
+    <view class="rank-list" wx:if="{{currentPersonalTab === 'rate1' && teamPlayersRate1.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersRate1}}" wx:key="name">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}} ({{item.team}})</text>
+          <text class="games-count">一位: {{item.firstPlace}}场 / 总计: {{item.games}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="rate-score">{{item.rate1Str}}</text>
+          <text class="score-label">一位率</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 个人避四率榜 -->
+    <view class="rank-list" wx:if="{{currentPersonalTab === 'avoid4' && teamPlayersAvoid4.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersAvoid4}}" wx:key="name">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}} ({{item.team}})</text>
+          <text class="games-count">非四位: {{item.games - item.fourthPlace}}场 / 总计: {{item.games}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="rate-score">{{item.avoid4Str}}</text>
+          <text class="score-label">避四率</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 个人最高打点榜 -->
+    <view class="rank-list" wx:if="{{currentPersonalTab === 'max' && teamPlayersMaxScore.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersMaxScore}}" wx:key="name">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}} ({{item.team}})</text>
+          <text class="games-count">对局: {{item.games}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score positive">+{{item.maxScoreStr}}</text>
+          <text class="score-label">最高打点</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 个人最低打点榜 -->
+    <view class="rank-list" wx:if="{{currentPersonalTab === 'min' && teamPlayersMinScore.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersMinScore}}" wx:key="name">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}} ({{item.team}})</text>
+          <text class="games-count">对局: {{item.games}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score negative">{{item.minScoreStr}}</text>
+          <text class="score-label">最低打点</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{teamPlayers.length === 0}}">
+      <text class="empty-text">暂无队员数据</text>
+      <text class="empty-hint">去队伍管理页面添加队员吧</text>
+    </view>
+  </view>
+
+  <view class="connection-status">
+    <view class="status-dot {{connected ? 'connected' : 'disconnected'}}"></view>
+    <text class="status-text">{{connected ? '数据加载完成' : '数据加载中'}}</text>
+  </view>
+
+  <!-- 底部导航栏 -->
+  <view class="bottom-nav">
+    <view class="nav-item" bindtap="goToTeamGame">
+      <text class="nav-icon">🎮</text>
+      <text class="nav-text">对局</text>
+    </view>
+    <view class="nav-item active">
+      <text class="nav-icon">🏆</text>
+      <text class="nav-text">排行榜</text>
+    </view>
+    <view class="nav-item" bindtap="goToTeamHistory">
+      <text class="nav-icon">📋</text>
+      <text class="nav-text">对局历史</text>
+    </view>
+    <view class="nav-item" bindtap="goToTeamManage">
+      <text class="nav-icon">👥</text>
+      <text class="nav-text">队伍管理</text>
+    </view>
+  </view>
+</view>

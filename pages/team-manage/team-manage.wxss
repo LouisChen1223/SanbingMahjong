@@ -6,7 +6,9 @@
 }
 
 .header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 40rpx;
 }
 
@@ -14,176 +16,103 @@
   font-size: 48rpx;
   font-weight: bold;
   color: #fff;
+  flex: 1;
+  text-align: center;
+}
+
+.header-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.clear-btn {
+  padding: 16rpx 32rpx;
+  background: rgba(255,255,255,0.2);
+  border-radius: 30rpx;
+  color: #fff;
+  font-size: 28rpx;
+}
+
+.team-list {
+  margin-bottom: 30rpx;
 }
 
 .section-title {
   font-size: 32rpx;
   font-weight: bold;
-  color: #333;
+  color: #fff;
   margin-bottom: 20rpx;
   display: block;
 }
 
-.create-section, .my-team-section, .join-section {
+.team-card {
   background: #fff;
   border-radius: 20rpx;
   padding: 30rpx;
-  margin-bottom: 30rpx;
+  margin-bottom: 25rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.1);
 }
 
-.team-name-input, .invite-input {
-  background: #f5f5f5;
-  border-radius: 10rpx;
-  padding: 20rpx;
-  font-size: 30rpx;
-  margin-bottom: 20rpx;
-}
-
-.create-btn, .join-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  border-radius: 50rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-}
-
-.team-card {
-  background: #f5f5f5;
-  border-radius: 15rpx;
-  padding: 25rpx;
-  margin-bottom: 20rpx;
-}
-
-.team-header {
+.team-info-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15rpx;
+  margin-bottom: 20rpx;
+  gap: 20rpx;
 }
 
-.team-name {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.captain-tag {
-  background: #667eea;
-  color: #fff;
-  font-size: 24rpx;
-  padding: 5rpx 15rpx;
-  border-radius: 20rpx;
-}
-
-.team-score, .team-games {
+.team-id {
   font-size: 28rpx;
-  color: #666;
-  margin-bottom: 10rpx;
+  color: #667eea;
+  font-weight: bold;
+  min-width: 80rpx;
 }
 
-.members-section {
-  margin-bottom: 30rpx;
-}
-
-.member-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15rpx;
-}
-
-.member-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.team-name-input {
+  flex: 1;
   background: #f5f5f5;
   border-radius: 10rpx;
-  padding: 20rpx;
+  padding: 15rpx 20rpx;
+  font-size: 28rpx;
+}
+
+.team-members {
+  margin-bottom: 20rpx;
+  padding: 15rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.member-label {
+  font-size: 26rpx;
+  color: #999;
+  margin-right: 10rpx;
 }
 
 .member-name {
   font-size: 28rpx;
   color: #333;
+  margin-right: 15rpx;
 }
 
-.member-role {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.member-role.captain {
-  color: #667eea;
-  font-weight: bold;
-}
-
-.member-actions {
+.team-actions {
   display: flex;
-  gap: 20rpx;
-}
-
-.action-btn {
-  font-size: 24rpx;
-  padding: 5rpx 15rpx;
-  border-radius: 10rpx;
-}
-
-.action-btn.remove {
-  background: #ffebee;
-  color: #f44336;
-}
-
-.invite-section {
-  margin-bottom: 30rpx;
-}
-
-.invite-code-box {
-  display: flex;
-  align-items: center;
   gap: 15rpx;
-  background: #f5f5f5;
-  border-radius: 10rpx;
-  padding: 20rpx;
-  margin-bottom: 15rpx;
+  align-items: center;
 }
 
-.invite-label {
-  font-size: 28rpx;
-  color: #666;
-}
-
-.invite-code {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #667eea;
+.new-member-input {
   flex: 1;
-}
-
-.copy-btn {
-  background: #667eea;
-  color: #fff;
-  font-size: 24rpx;
-  padding: 10rpx 20rpx;
-  border-radius: 10rpx;
-}
-
-.invite-tip {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.quit-section {
-  margin-top: 30rpx;
-}
-
-.quit-btn {
   background: #f5f5f5;
-  color: #666;
-  border-radius: 50rpx;
+  border-radius: 10rpx;
+  padding: 15rpx 20rpx;
   font-size: 28rpx;
 }
 
-.quit-btn.danger {
-  background: #ffebee;
-  color: #f44336;
+.add-member-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 26rpx;
+  padding: 15rpx 25rpx;
+  border-radius: 30rpx;
 }
 
 .nav-section {

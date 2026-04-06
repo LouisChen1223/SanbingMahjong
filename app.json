@@ -3,6 +3,8 @@
     "pages/home/home",
     "pages/index/index",
     "pages/team-game/team-game",
+    "pages/team-rank/team-rank",
+    "pages/team-history/team-history",
     "pages/team-manage/team-manage",
     "pages/rank/rank",
     "pages/history/history"

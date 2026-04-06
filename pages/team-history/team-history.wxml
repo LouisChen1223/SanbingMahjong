@@ -1,0 +1,60 @@
+<!--pages/team-history/team-history.wxml - 团队赛对局历史页面-->
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="confirmExit">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="title">团队赛对局历史</text>
+    <view class="header-btns">
+      <view class="refresh-btn" bindtap="refreshData">刷新</view>
+    </view>
+  </view>
+
+  <!-- 对局历史列表 -->
+  <view class="history-list" wx:if="{{games.length > 0}}">
+    <view class="game-card" wx:for="{{games}}" wx:key="_id">
+      <view class="game-header">
+        <text class="game-date">{{item.formattedDate}}</text>
+      </view>
+      <view class="game-body">
+        <view class="player-row" wx:for="{{item.players}}" wx:key="{{index}}" wx:for-item="player">
+          <view class="player-info">
+            <text class="player-name">{{player.name}}</text>
+            <text class="player-team">{{player.team || '无队伍'}}</text>
+          </view>
+          <view class="player-score {{player.score >= 0 ? 'positive' : 'negative'}}">{{player.score >= 0 ? '+' : ''}}{{player.score}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:if="{{games.length === 0}}">
+    <text class="empty-text">暂无对局记录</text>
+    <text class="empty-hint">去团队赛页面录入对局吧</text>
+  </view>
+
+  <view class="connection-status">
+    <view class="status-dot {{connected ? 'connected' : 'disconnected'}}"></view>
+    <text class="status-text">{{connected ? '数据加载完成' : '数据加载中'}}</text>
+  </view>
+
+  <!-- 底部导航栏 -->
+  <view class="bottom-nav">
+    <view class="nav-item" bindtap="goToTeamGame">
+      <text class="nav-icon">🎮</text>
+      <text class="nav-text">对局</text>
+    </view>
+    <view class="nav-item" bindtap="goToTeamRank">
+      <text class="nav-icon">🏆</text>
+      <text class="nav-text">排行榜</text>
+    </view>
+    <view class="nav-item active">
+      <text class="nav-icon">📋</text>
+      <text class="nav-text">对局历史</text>
+    </view>
+    <view class="nav-item" bindtap="goToTeamManage">
+      <text class="nav-icon">👥</text>
+      <text class="nav-text">队伍管理</text>
+    </view>
+  </view>
+</view>

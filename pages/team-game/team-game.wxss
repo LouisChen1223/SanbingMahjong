@@ -243,3 +243,44 @@
   color: #fff;
   font-size: 28rpx;
 }
+
+/* 底部导航栏 */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1rpx solid #e8e8e8;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20rpx 0;
+  z-index: 999;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 10rpx;
+  width: 25%;
+}
+
+.nav-item.active {
+  color: #667eea;
+}
+
+.nav-icon {
+  font-size: 40rpx;
+}
+
+.nav-text {
+  font-size: 24rpx;
+}
+
+/* 调整容器底部边距，避免被导航栏遮挡 */
+.container {
+  padding-bottom: 120rpx;
+}

@@ -1,7 +1,10 @@
 <!--index.wxml-->
 <view class="container">
   <view class="header">
-    <text class="title">日麻计分</text>
+    <view class="back-btn" bindtap="confirmExit">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="title">个人战录入</text>
   </view>
 
   <view class="input-section">
