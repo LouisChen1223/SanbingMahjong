@@ -1,0 +1,33 @@
+<!--pages/home/home.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">日麻计分</text>
+    <text class="subtitle">选择对战模式</text>
+  </view>
+  
+  <view class="card-container">
+    <!-- 个人战入口 -->
+    <view class="entry-card personal" bindtap="goToPersonal">
+      <view class="card-icon">👤</view>
+      <view class="card-info">
+        <text class="card-title">个人战</text>
+        <text class="card-desc">四人独立计分，马点[50,10,-20,-40]</text>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+    
+    <!-- 团队战入口 -->
+    <view class="entry-card team" bindtap="goToTeam">
+      <view class="card-icon">👥</view>
+      <view class="card-info">
+        <text class="card-title">团队战</text>
+        <text class="card-desc">组队对抗，累计积分排名</text>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+  </view>
+  
+  <view class="footer">
+    <text class="footer-text">选择模式开始计分</text>
+  </view>
+</view>

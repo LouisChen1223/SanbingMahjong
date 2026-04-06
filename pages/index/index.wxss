@@ -185,3 +185,23 @@
 .result-final.negative {
   color: #E64340;
 }
+
+/* 导航区域 */
+.nav-section {
+  margin-top: 40rpx;
+  display: flex;
+  justify-content: center;
+  gap: 30rpx;
+}
+
+.nav-link {
+  color: #1AAD19;
+  font-size: 28rpx;
+  text-decoration: underline;
+}
+
+.back-home {
+  color: #888;
+  font-size: 28rpx;
+  text-decoration: underline;
+}

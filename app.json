@@ -1,6 +1,9 @@
 {
   "pages": [
+    "pages/home/home",
     "pages/index/index",
+    "pages/team-game/team-game",
+    "pages/team-manage/team-manage",
     "pages/rank/rank",
     "pages/history/history"
   ],

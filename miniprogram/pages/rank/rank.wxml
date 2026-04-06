@@ -1,0 +1,141 @@
+<!--rank.wxml - 排行榜页面模板-->
+<!--包含三个Tab：个人榜、战队榜、组队成员榜-->
+
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">排行榜</text>
+  </view>
+  
+  <!-- Tab切换栏 -->
+  <view class="tabs">
+    <view 
+      wx:for="{{tabs}}" 
+      wx:key="index"
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      data-index="{{index}}"
+      bindtap="onTabChange"
+    >
+      {{item}}
+    </view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 滑动区域 -->
+  <swiper 
+    wx:else
+    class="rank-swiper" 
+    current="{{currentTab}}"
+    bindchange="onSwiperChange"
+  >
+    <!-- 个人榜 -->
+    <swiper-item>
+      <scroll-view scroll-y class="rank-scroll">
+        <view wx:if="{{personalList.length === 0}}" class="empty-tip">
+          暂无个人对局数据
+        </view>
+        <view wx:else class="rank-list">
+          <view 
+            wx:for="{{personalList}}" 
+            wx:key="name"
+            class="rank-item {{item.rank <= 3 ? 'top-' + item.rank : ''}}"
+          >
+            <!-- 排名 -->
+            <text class="rank-num">{{item.rank}}</text>
+            
+            <!-- 玩家信息 -->
+            <view class="rank-info">
+              <text class="rank-name">{{item.name}}</text>
+              <text class="rank-games">对局数: {{item.gameCount}} | 一位率: {{item.firstRate}}%</text>
+            </view>
+            
+            <!-- 积分 -->
+            <view class="rank-score">
+              <text class="score-value">{{item.totalScore > 0 ? '+' : ''}}{{item.totalScore}}</text>
+              <text class="score-label">场均: {{item.avgScore}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+    
+    <!-- 战队榜 -->
+    <swiper-item>
+      <scroll-view scroll-y class="rank-scroll">
+        <view wx:if="{{teamList.length === 0}}" class="empty-tip">
+          暂无组队对局数据
+        </view>
+        <view wx:else class="rank-list">
+          <view 
+            wx:for="{{teamList}}" 
+            wx:key="teamId"
+            class="rank-item {{item.rank <= 3 ? 'top-' + item.rank : ''}}"
+          >
+            <!-- 排名 -->
+            <text class="rank-num">{{item.rank}}</text>
+            
+            <!-- 战队徽章 -->
+            <view class="team-badge">{{item.teamId}}</view>
+            
+            <!-- 战队信息 -->
+            <view class="rank-info">
+              <text class="rank-name">{{item.teamName}}</text>
+              <view class="team-stats">
+                <text class="stat-item">对局: {{item.gameCount}}</text>
+                <text class="stat-item">一位率: {{item.firstRate}}%</text>
+                <text class="stat-item">避四率: {{item.avoidFourthRate}}%</text>
+              </view>
+            </view>
+            
+            <!-- 积分 -->
+            <view class="rank-score">
+              <text class="score-value">{{item.totalScore > 0 ? '+' : ''}}{{item.totalScore}}</text>
+              <text class="score-label">场均: {{item.avgScore}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+    
+    <!-- 组队成员榜 -->
+    <swiper-item>
+      <scroll-view scroll-y class="rank-scroll">
+        <view wx:if="{{memberList.length === 0}}" class="empty-tip">
+          暂无组队成员数据
+        </view>
+        <view wx:else class="rank-list">
+          <view 
+            wx:for="{{memberList}}" 
+            wx:key="name"
+            class="rank-item {{item.rank <= 3 ? 'top-' + item.rank : ''}}"
+          >
+            <!-- 排名 -->
+            <text class="rank-num">{{item.rank}}</text>
+            
+            <!-- 战队徽章 -->
+            <view class="member-badge">{{item.teamId}}</view>
+            
+            <!-- 成员信息 -->
+            <view class="rank-info">
+              <text class="rank-name">{{item.name}}</text>
+              <view class="member-stats">
+                <text class="stat-item">{{item.teamName}}</text>
+                <text class="stat-item">对局: {{item.gameCount}}</text>
+              </view>
+            </view>
+            
+            <!-- 积分 -->
+            <view class="rank-score">
+              <text class="score-value">{{item.totalScore > 0 ? '+' : ''}}{{item.totalScore}}</text>
+              <text class="score-label">场均: {{item.avgScore}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+</view>

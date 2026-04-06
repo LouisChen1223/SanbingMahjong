@@ -1,0 +1,69 @@
+<!--pages/team-game/team-game.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">团队战录入</text>
+  </view>
+
+  <!-- 队伍选择 -->
+  <view class="team-section" wx:if="{{!currentTeam}}">
+    <text class="section-title">选择队伍</text>
+    <picker mode="selector" range="{{teams}}" range-key="name" bindchange="onTeamSelect">
+      <view class="picker-btn">
+        {{selectedTeamIndex >= 0 ? teams[selectedTeamIndex].name : '点击选择队伍'}}
+      </view>
+    </picker>
+    <view class="create-team-link" bindtap="goToCreateTeam">没有队伍？点击创建</view>
+  </view>
+
+  <!-- 当前队伍信息 -->
+  <view class="team-info" wx:if="{{currentTeam}}">
+    <view class="team-header">
+      <text class="team-name">{{currentTeam.name}}</text>
+      <text class="team-score">总分: {{currentTeam.total_score || 0}}</text>
+    </view>
+    <view class="team-members">
+      <text class="member-label">队员:</text>
+      <text wx:for="{{currentTeam.members}}" wx:key="*this">{{item}} </text>
+    </view>
+    <view class="switch-team" bindtap="switchTeam">切换队伍</view>
+  </view>
+
+  <!-- 权限提示 -->
+  <view class="auth-warning" wx:if="{{currentTeam && !isCaptain}}">
+    <text>⚠️ 只有队长可以录入团队战成绩</text>
+  </view>
+
+  <!-- 录入区域 -->
+  <view class="input-section" wx:if="{{currentTeam && isCaptain}}">
+    <text class="section-title">录入本局得点</text>
+    <view class="player-list">
+      <view class="player-item" wx:for="{{players}}" wx:key="index">
+        <text class="player-label">{{windPositions[index]}}</text>
+        <input class="name-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="onNameInput" />
+        <view class="score-input-wrapper">
+          <view class="sign-btn {{item.isNegative ? 'negative' : 'positive'}}" data-index="{{index}}" bindtap="toggleNegative">{{item.isNegative ? '-' : '+'}}</view>
+          <input class="score-input" placeholder="得点" type="number" value="{{item.score}}" data-index="{{index}}" bindinput="onScoreInput" />
+          <text class="score-suffix">00</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <button class="settle-btn" bindtap="onSettle" loading="{{loading}}" wx:if="{{currentTeam && isCaptain}}">结算</button>
+
+  <!-- 结果展示 -->
+  <view class="result-section" wx:if="{{result.length > 0}}">
+    <text class="section-title">本局结果</text>
+    <view class="result-list">
+      <view class="result-item" wx:for="{{result}}" wx:key="originalIndex">
+        <text class="result-name">{{item.name}}</text>
+        <text class="result-score">{{item.finalScore > 0 ? '+' : ''}}{{item.finalScore}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="nav-section">
+    <navigator url="/pages/team-manage/team-manage" class="nav-link">队伍管理</navigator>
+    <view class="nav-link back-home" bindtap="goHome">返回首页</view>
+  </view>
+</view>

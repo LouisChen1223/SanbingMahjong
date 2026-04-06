@@ -1,0 +1,113 @@
+<!-- team-manage.wxml - 战队管理页面模板 -->
+<!-- 功能：展示五个战队，支持改名和添加成员 -->
+
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">战队管理</text>
+    <text class="subtitle">管理五军对决的战队与成员</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 战队列表 -->
+  <view wx:else class="teams-container">
+    <!-- 战队选择卡片 -->
+    <scroll-view class="teams-scroll" scroll-x>
+      <view 
+        class="team-card {{currentTeamIndex === index ? 'active' : ''}}"
+        wx:for="{{teams}}"
+        wx:key="_id"
+        data-index="{{index}}"
+        bindtap="selectTeam"
+      >
+        <view class="team-badge">{{item.team_id}}</view>
+        <text class="team-name">{{item.team_name}}</text>
+        <text class="team-count">{{item.memberCount}}人</text>
+      </view>
+    </scroll-view>
+
+    <!-- 当前战队详情 -->
+    <view class="team-detail" wx:if="{{teams.length > 0}}">
+      <!-- 战队操作按钮 -->
+      <view class="team-actions">
+        <view 
+          class="action-btn rename-btn"
+          data-index="{{currentTeamIndex}}"
+          bindtap="showRename"
+        >
+          <text>改名</text>
+        </view>
+        <view 
+          class="action-btn add-btn"
+          data-index="{{currentTeamIndex}}"
+          bindtap="showAddMember"
+        >
+          <text>添加成员</text>
+        </view>
+      </view>
+
+      <!-- 成员列表 -->
+      <view class="members-section">
+        <text class="section-title">战队成员</text>
+        
+        <view wx:if="{{currentMembers.length === 0}}" class="empty-tip">
+          <text>暂无成员，点击上方按钮添加</text>
+        </view>
+
+        <view wx:else class="members-list">
+          <view 
+            class="member-item"
+            wx:for="{{currentMembers}}"
+            wx:key="_id"
+          >
+            <text class="member-name">{{item.name}}</text>
+            <view class="member-stats">
+              <text class="stat">积分: {{item.member_score || 0}}</text>
+              <text class="stat">对局: {{item.games_played || 0}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 改名弹窗 -->
+<view class="modal-mask" wx:if="{{showRenameModal}}" bindtap="closeRenameModal">
+  <view class="modal-content" catchtap>
+    <text class="modal-title">修改战队名称</text>
+    <input 
+      class="modal-input"
+      type="text"
+      placeholder="请输入新的战队名称"
+      value="{{newTeamName}}"
+      bindinput="onTeamNameInput"
+    />
+    <view class="modal-buttons">
+      <view class="modal-btn cancel" bindtap="closeRenameModal">取消</view>
+      <view class="modal-btn confirm" bindtap="confirmRename">确认</view>
+    </view>
+  </view>
+</view>
+
+<!-- 添加成员弹窗 -->
+<view class="modal-mask" wx:if="{{showAddMemberModal}}" bindtap="closeAddMemberModal">
+  <view class="modal-content" catchtap>
+    <text class="modal-title">添加战队成员</text>
+    <input 
+      class="modal-input"
+      type="text"
+      placeholder="请输入成员姓名"
+      value="{{newMemberName}}"
+      bindinput="onMemberNameInput"
+    />
+    <view class="modal-buttons">
+      <view class="modal-btn cancel" bindtap="closeAddMemberModal">取消</view>
+      <view class="modal-btn confirm" bindtap="confirmAddMember">确认</view>
+    </view>
+  </view>
+</view>

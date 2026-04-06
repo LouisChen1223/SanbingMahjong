@@ -259,5 +259,19 @@ Page({
         { name: '', score: '' }
       ]
     })
+  },
+
+  // 返回首页
+  goHome() {
+    wx.reLaunch({
+      url: '/pages/home/home'
+    })
+  },
+
+  // 查看排行榜
+  goRank() {
+    wx.switchTab({
+      url: '/pages/rank/rank'
+    })
   }
 })

@@ -1,0 +1,198 @@
+/* pages/team-manage/team-manage.wxss */
+.container {
+  padding: 30rpx;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.create-section, .my-team-section, .join-section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.team-name-input, .invite-input {
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  font-size: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.create-btn, .join-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.team-card {
+  background: #f5f5f5;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  margin-bottom: 20rpx;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.team-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.captain-tag {
+  background: #667eea;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 5rpx 15rpx;
+  border-radius: 20rpx;
+}
+
+.team-score, .team-games {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.members-section {
+  margin-bottom: 30rpx;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  padding: 20rpx;
+}
+
+.member-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.member-role {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.member-role.captain {
+  color: #667eea;
+  font-weight: bold;
+}
+
+.member-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  font-size: 24rpx;
+  padding: 5rpx 15rpx;
+  border-radius: 10rpx;
+}
+
+.action-btn.remove {
+  background: #ffebee;
+  color: #f44336;
+}
+
+.invite-section {
+  margin-bottom: 30rpx;
+}
+
+.invite-code-box {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
+}
+
+.invite-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.invite-code {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #667eea;
+  flex: 1;
+}
+
+.copy-btn {
+  background: #667eea;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 10rpx;
+}
+
+.invite-tip {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.quit-section {
+  margin-top: 30rpx;
+}
+
+.quit-btn {
+  background: #f5f5f5;
+  color: #666;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+}
+
+.quit-btn.danger {
+  background: #ffebee;
+  color: #f44336;
+}
+
+.nav-section {
+  text-align: center;
+  padding: 30rpx;
+}
+
+.nav-link {
+  color: #fff;
+  font-size: 28rpx;
+  text-decoration: underline;
+}

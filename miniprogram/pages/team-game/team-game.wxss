@@ -1,0 +1,161 @@
+/* team-game.wxss - 组队赛录入页面样式 */
+
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 30rpx;
+  padding-bottom: 120rpx;
+  box-sizing: border-box;
+}
+
+/* 页面标题 */
+.header {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #888;
+}
+
+/* 规则说明卡片 */
+.rules-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 30rpx;
+  border-left: 6rpx solid #E64340;
+}
+
+.rules-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.rules-text {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 玩家输入区域 */
+.players-section {
+  margin-bottom: 30rpx;
+}
+
+.player-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  position: relative;
+}
+
+/* 顺位标识 */
+.rank-badge {
+  position: absolute;
+  top: -10rpx;
+  left: 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: bold;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+/* 输入行 */
+.input-row {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.input-label {
+  width: 80rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.name-input {
+  flex: 1;
+  height: 70rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+/* 正负号切换按钮 */
+.sign-btn {
+  width: 70rpx;
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-right: 16rpx;
+}
+
+.sign-btn.positive {
+  background: #e8f5e9;
+  color: #1AAD19;
+}
+
+.sign-btn.negative {
+  background: #ffebee;
+  color: #E64340;
+}
+
+/* 点棒输入框 */
+.score-input {
+  flex: 1;
+  height: 70rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+/* 负分文字变红 */
+.negative-text {
+  color: #E64340;
+}
+
+/* 提交按钮 */
+.submit-btn {
+  position: fixed;
+  bottom: 30rpx;
+  left: 30rpx;
+  right: 30rpx;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.submit-btn.disabled {
+  opacity: 0.6;
+}

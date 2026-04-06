@@ -32,6 +32,7 @@
   </view>
 
   <view class="nav-section">
-    <navigator url="/pages/rank/rank" class="nav-link">查看排行榜</navigator>
+    <view class="nav-link" bindtap="goRank">查看排行榜</view>
+    <view class="nav-link back-home" bindtap="goHome">返回首页</view>
   </view>
 </view>

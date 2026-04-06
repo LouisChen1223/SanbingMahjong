@@ -1,0 +1,67 @@
+<!--team-game.wxml - 组队赛录入页面-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">五军对决</text>
+    <text class="subtitle">组队赛录入</text>
+  </view>
+
+  <!-- 规则说明 -->
+  <view class="rules-card">
+    <text class="rules-title">计分规则</text>
+    <text class="rules-text">起点25000 | 马点：1位+50, 2位+10, 3位-20, 4位-40</text>
+    <text class="rules-text">同分平分马点 | 得分 = (点棒-25000)/1000 + 马点</text>
+  </view>
+
+  <!-- 玩家输入区域 -->
+  <view class="players-section">
+    <block wx:for="{{players}}" wx:key="index">
+      <view class="player-card">
+        <!-- 顺位标识 -->
+        <view class="rank-badge">{{index + 1}}位</view>
+        
+        <!-- 姓名输入 -->
+        <view class="input-row">
+          <text class="input-label">姓名</text>
+          <input 
+            class="name-input" 
+            placeholder="输入玩家姓名" 
+            value="{{item.name}}"
+            data-index="{{index}}"
+            bindinput="onNameInput"
+          />
+        </view>
+        
+        <!-- 点棒输入 -->
+        <view class="input-row">
+          <text class="input-label">点棒</text>
+          <!-- 正负号切换按钮 -->
+          <view 
+            class="sign-btn {{item.isNegative ? 'negative' : 'positive'}}"
+            data-index="{{index}}"
+            bindtap="toggleNegative"
+          >
+            {{item.isNegative ? '-' : '+'}}
+          </view>
+          <input 
+            class="score-input {{item.isNegative ? 'negative-text' : ''}}" 
+            type="digit"
+            placeholder="输入点棒" 
+            value="{{item.score}}"
+            data-index="{{index}}"
+            bindinput="onScoreInput"
+          />
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 提交按钮 -->
+  <button 
+    class="submit-btn {{submitting ? 'disabled' : ''}}" 
+    bindtap="submitGame"
+    disabled="{{submitting}}"
+  >
+    {{submitting ? '提交中...' : '结算对局'}}
+  </button>
+</view>
