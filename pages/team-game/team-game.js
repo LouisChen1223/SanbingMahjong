@@ -315,14 +315,17 @@ Page({
     const db = app.db
     const _ = db.command
 
-    // 计算每个队伍的总分变化
+    // 计算每个队伍的总分变化和队员顺位总和
     const teamScoreChanges = {}
+    const teamPositionSums = {}
     result.forEach(p => {
       const teamId = playerTeams[p.name]
       if (!teamScoreChanges[teamId]) {
         teamScoreChanges[teamId] = 0
+        teamPositionSums[teamId] = 0
       }
       teamScoreChanges[teamId] += p.finalScore
+      teamPositionSums[teamId] += p.position
     })
 
     // 计算队伍排名
@@ -330,24 +333,14 @@ Page({
       .map(([teamId, score]) => ({ teamId, score }))
       .sort((a, b) => b.score - a.score)
 
-    // 更新每个队伍的总分和排名
+    // 更新每个队伍的总分和队员顺位总和
     for (let i = 0; i < teamRank.length; i++) {
       const { teamId, score } = teamRank[i]
       const updateData = {
         total_score: _.inc(score),
         games_played: _.inc(1),
+        total_positions: _.inc(teamPositionSums[teamId]),
         update_time: db.serverDate()
-      }
-
-      // 记录队伍排名
-      if (i === 0) {
-        updateData.first_place = _.inc(1)
-      } else if (i === 1) {
-        updateData.second_place = _.inc(1)
-      } else if (i === 2) {
-        updateData.third_place = _.inc(1)
-      } else if (i === 3) {
-        updateData.fourth_place = _.inc(1)
       }
 
       await db.collection('teams').doc(teamId).update({
