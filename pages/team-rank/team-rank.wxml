@@ -108,6 +108,7 @@
         <view class="player-info">
           <text class="player-name">{{item.name}} ({{item.team}})</text>
           <text class="games-count">对局: {{item.games}}场</text>
+          <text class="positions-count" wx:if="{{item.positions}}">1位: {{item.positions.first}} 2位: {{item.positions.second}} 3位: {{item.positions.third}} 4位: {{item.positions.fourth}}</text>
         </view>
         <view class="score-section">
           <text class="total-score {{item.totalScore >= 0 ? 'positive' : 'negative'}}">
@@ -128,6 +129,7 @@
         <view class="player-info">
           <text class="player-name">{{item.name}} ({{item.team}})</text>
           <text class="games-count">一位: {{item.firstPlace}}场 / 总计: {{item.games}}场</text>
+          <text class="positions-count" wx:if="{{item.positions}}">1位: {{item.positions.first}} 2位: {{item.positions.second}} 3位: {{item.positions.third}} 4位: {{item.positions.fourth}}</text>
         </view>
         <view class="score-section">
           <text class="rate-score">{{item.rate1Str}}</text>
@@ -146,6 +148,7 @@
         <view class="player-info">
           <text class="player-name">{{item.name}} ({{item.team}})</text>
           <text class="games-count">非四位: {{item.games - item.fourthPlace}}场 / 总计: {{item.games}}场</text>
+          <text class="positions-count" wx:if="{{item.positions}}">1位: {{item.positions.first}} 2位: {{item.positions.second}} 3位: {{item.positions.third}} 4位: {{item.positions.fourth}}</text>
         </view>
         <view class="score-section">
           <text class="rate-score">{{item.avoid4Str}}</text>
@@ -164,6 +167,7 @@
         <view class="player-info">
           <text class="player-name">{{item.name}} ({{item.team}})</text>
           <text class="games-count">对局: {{item.games}}场</text>
+          <text class="positions-count" wx:if="{{item.positions}}">1位: {{item.positions.first}} 2位: {{item.positions.second}} 3位: {{item.positions.third}} 4位: {{item.positions.fourth}}</text>
         </view>
         <view class="score-section">
           <text class="total-score positive">+{{item.maxScoreStr}}</text>
@@ -182,6 +186,7 @@
         <view class="player-info">
           <text class="player-name">{{item.name}} ({{item.team}})</text>
           <text class="games-count">对局: {{item.games}}场</text>
+          <text class="positions-count" wx:if="{{item.positions}}">1位: {{item.positions.first}} 2位: {{item.positions.second}} 3位: {{item.positions.third}} 4位: {{item.positions.fourth}}</text>
         </view>
         <view class="score-section">
           <text class="total-score negative">{{item.minScoreStr}}</text>

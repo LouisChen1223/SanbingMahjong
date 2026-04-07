@@ -176,11 +176,13 @@ Page({
   calculateScores(players) {
     let rankedPlayers = players.map((p, originalIndex) => ({
       ...p,
+      name: p.name.trim(), // 去除姓名前后空格
       originalIndex,
       scoreNum: (parseInt(p.score) || 0) * 100 * (p.isNegative ? -1 : 1),
       rawScore: 0,
       horsePoint: 0,
-      finalScore: 0
+      finalScore: 0,
+      position: 0
     }))
 
     rankedPlayers.sort((a, b) => b.scoreNum - a.scoreNum)
@@ -189,13 +191,20 @@ Page({
       p.rawScore = (p.scoreNum - START_POINT) / 1000
     })
 
-    // 平分马点处理
+    // 计算位次和马点（同分情况下共同获得较高位次）
     let i = 0
     while (i < rankedPlayers.length) {
       let j = i + 1
       while (j < rankedPlayers.length && rankedPlayers[j].scoreNum === rankedPlayers[i].scoreNum) {
         j++
       }
+      // 计算位次（使用当前位置+1作为共同位次）
+      const position = i + 1
+      // 为所有同分玩家设置相同的位次
+      for (let k = i; k < j; k++) {
+        rankedPlayers[k].position = position
+      }
+      // 计算马点
       let horseSum = 0
       for (let k = i; k < j; k++) {
         horseSum += HORSE_POINTS[k]
@@ -346,13 +355,19 @@ Page({
       })
     }
 
-    // 更新队员个人分数（如果队员在players集合中）
+    // 更新队员个人分数（使用 team_members 集合）
     for (let p of result) {
       try {
-        const playerDoc = db.collection('players').doc(p.name)
-        const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
+        // 查找队员在 team_members 集合中的记录
+        const playerName = p.name.trim()
+        const { data: members } = await db.collection('team_members')
+          .where({ member_id: playerName })
+          .get()
 
-        if (existingData) {
+        if (members && members.length > 0) {
+          const member = members[0]
+          const memberDoc = db.collection('team_members').doc(member._id)
+
           // 计算最高和最低打点
           const updateData = {
             total_score: _.inc(p.finalScore),
@@ -360,35 +375,24 @@ Page({
             update_time: db.serverDate()
           }
 
-          // 更新最高打点
-          if (!existingData.max_score || p.finalScore > existingData.max_score) {
-            updateData.max_score = p.finalScore
+          // 更新最高打点（使用局内得点）
+          if (!member.max_score || p.scoreNum > member.max_score) {
+            updateData.max_score = p.scoreNum
           }
 
-          // 更新最低打点
-          if (!existingData.min_score || p.finalScore < existingData.min_score) {
-            updateData.min_score = p.finalScore
+          // 更新最低打点（使用局内得点）
+          if (!member.min_score || p.scoreNum < member.min_score) {
+            updateData.min_score = p.scoreNum
           }
 
-          await playerDoc.update({
+          await memberDoc.update({
             data: updateData
           })
         } else {
-          // 新增玩家
-          await playerDoc.set({
-            data: {
-              name: p.name,
-              total_score: p.finalScore,
-              games_played: 1,
-              max_score: p.finalScore,
-              min_score: p.finalScore,
-              create_time: db.serverDate(),
-              update_time: db.serverDate()
-            }
-          })
+          console.log(`玩家 ${p.name} 不在 team_members 集合中，跳过更新`)
         }
       } catch (err) {
-        console.log(`更新玩家 ${p.name} 分数失败:`, err)
+        console.log(`更新团队赛玩家 ${p.name} 分数失败:`, err)
       }
     }
 
@@ -403,12 +407,16 @@ Page({
     try {
       await db.collection('team_games').add({
         data: {
-          players: result.map(p => ({
-            name: p.name,
-            team_id: playerTeams[p.name],
-            scoreNum: p.scoreNum,
-            finalScore: p.finalScore
-          })),
+          players: result.map((p) => {
+            const playerName = p.name.trim()
+            return {
+              name: playerName,
+              team_id: playerTeams[playerName],
+              scoreNum: p.scoreNum,
+              finalScore: p.finalScore,
+              position: p.position // 记录个人顺位
+            }
+          }),
           create_time: db.serverDate()
         }
       })

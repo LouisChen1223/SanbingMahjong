@@ -149,7 +149,13 @@ Page({
       await db.collection('team_members').add({
         data: {
           team_id: teamId,
-          member_id: newMemberId
+          member_id: newMemberId,
+          total_score: 0,
+          games_played: 0,
+          max_score: 0,
+          min_score: 0,
+          create_time: db.serverDate(),
+          update_time: db.serverDate()
         }
       })
 
@@ -173,11 +179,11 @@ Page({
 
       // 初始化队伍数据
       const teams = [
-        { _id: 'A', team_name: '' },
-        { _id: 'B', team_name: '' },
-        { _id: 'C', team_name: '' },
-        { _id: 'D', team_name: '' },
-        { _id: 'E', team_name: '' }
+        { _id: 'A', team_name: '鸡打狗摸队' },
+        { _id: 'B', team_name: '胖达荣荣队' },
+        { _id: 'C', team_name: '野猪队' },
+        { _id: 'D', team_name: '我反复强调鸽鸽说得不队' },
+        { _id: 'E', team_name: '下只角队' }
       ]
 
       // 初始化队员数据
@@ -217,7 +223,17 @@ Page({
         await db.collection('team_members').doc(m._id).remove()
       }
       for (const member of members) {
-        await db.collection('team_members').add({ data: member })
+        await db.collection('team_members').add({
+          data: {
+            ...member,
+            total_score: 0,
+            games_played: 0,
+            max_score: 0,
+            min_score: 0,
+            create_time: db.serverDate(),
+            update_time: db.serverDate()
+          }
+        })
       }
 
       wx.showToast({ title: '初始化成功', icon: 'success' })
@@ -247,19 +263,52 @@ Page({
           try {
             wx.showLoading({ title: '清空数据中...' })
 
-            // 清空队伍数据
-            const teamsRes = await db.collection('teams').get()
-            for (const team of teamsRes.data) {
-              await db.collection('teams').doc(team._id).update({
-                data: {
-                  total_score: 0,
-                  games_played: 0,
-                  first_place: 0,
-                  second_place: 0,
-                  third_place: 0,
-                  fourth_place: 0
-                }
-              })
+            // 清空队伍数据（重置统计数据，保留队伍本身）
+            try {
+              const teamsRes = await db.collection('teams').get()
+              for (const team of teamsRes.data) {
+                await db.collection('teams').doc(team._id).update({
+                  data: {
+                    total_score: 0,
+                    games_played: 0,
+                    first_place: 0,
+                    second_place: 0,
+                    third_place: 0,
+                    fourth_place: 0,
+                    update_time: db.serverDate()
+                  }
+                })
+              }
+            } catch (err) {
+              console.log('teams 集合不存在，跳过清空')
+            }
+
+            // 清空团队赛个人数据（重置统计数据，保留队员本身）
+            try {
+              const membersRes = await db.collection('team_members').get()
+              for (const member of membersRes.data) {
+                await db.collection('team_members').doc(member._id).update({
+                  data: {
+                    total_score: 0,
+                    games_played: 0,
+                    max_score: 0,
+                    min_score: 0,
+                    update_time: db.serverDate()
+                  }
+                })
+              }
+            } catch (err) {
+              console.log('team_members 集合不存在，跳过清空')
+            }
+
+            // 清空团队赛玩家数据（如果存在）
+            try {
+              const playersRes = await db.collection('team_players').get()
+              for (const player of playersRes.data) {
+                await db.collection('team_players').doc(player._id).remove()
+              }
+            } catch (err) {
+              console.log('team_players 集合不存在，跳过清空')
             }
 
             // 清空团队赛对局记录（如果存在）

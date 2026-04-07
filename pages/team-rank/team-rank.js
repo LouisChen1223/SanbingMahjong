@@ -103,26 +103,58 @@ Page({
           fourthPlace: 0,
           games: 0,
           maxScore: 0,
-          minScore: 0
+          minScore: 0,
+          positions: {
+            first: 0,
+            second: 0,
+            third: 0,
+            fourth: 0
+          }
         })
       }
     })
 
-    // 尝试从 players 集合中获取队员的详细数据
+    // 从 team_members 集合中获取队员的详细数据
     try {
-      const playersRes = await this.db.collection('players').get()
-      playersRes.data.forEach(player => {
-        if (playerStats.has(player.name)) {
-          const stats = playerStats.get(player.name)
-          stats.totalScore = player.total_score || 0
-          stats.games = player.games_played || 0
-          stats.maxScore = player.max_score || 0
-          stats.minScore = player.min_score || 0
-          playerStats.set(player.name, stats)
+      membersData.forEach(member => {
+        if (playerStats.has(member.member_id)) {
+          const stats = playerStats.get(member.member_id)
+          stats.totalScore = member.total_score || 0
+          stats.games = member.games_played || 0
+          stats.maxScore = member.max_score || 0
+          stats.minScore = member.min_score || 0
+          playerStats.set(member.member_id, stats)
         }
       })
     } catch (err) {
-      console.log('players 集合不存在，使用默认数据')
+      console.log('获取队员详细数据失败:', err)
+    }
+
+    // 尝试从 team_games 集合中获取个人顺位数据
+    try {
+      const gamesRes = await this.db.collection('team_games').get()
+      gamesRes.data.forEach(game => {
+        game.players.forEach(player => {
+          if (playerStats.has(player.name)) {
+            const stats = playerStats.get(player.name)
+            // 统计顺位
+            if (player.position === 1) {
+              stats.positions.first += 1
+              stats.firstPlace += 1
+            } else if (player.position === 2) {
+              stats.positions.second += 1
+            } else if (player.position === 3) {
+              stats.positions.third += 1
+            } else if (player.position === 4) {
+              stats.positions.fourth += 1
+              stats.fourthPlace += 1
+            }
+            playerStats.set(player.name, stats)
+          }
+        })
+      })
+    } catch (err) {
+      console.log('team_games 集合不存在，跳过顺位统计')
     }
 
     // 转换为数组并添加格式化字段

@@ -80,12 +80,29 @@
   background: rgba(255,255,255,0.2);
   padding: 20rpx;
   border-bottom: 1rpx solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .game-date {
   font-size: 28rpx;
   color: #fff;
   font-weight: bold;
+}
+
+.delete-btn {
+  padding: 8rpx 20rpx;
+  background: rgba(244, 67, 54, 0.8);
+  border-radius: 20rpx;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: rgba(244, 67, 54, 1);
 }
 
 .game-body {
@@ -187,38 +204,3 @@
   100% { opacity: 1; }
 }
 
-/* 底部导航栏 */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border-top: 1rpx solid #e8e8e8;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 20rpx 0;
-  z-index: 999;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10rpx;
-  padding: 10rpx;
-  width: 25%;
-}
-
-.nav-item.active {
-  color: #667eea;
-}
-
-.nav-icon {
-  font-size: 40rpx;
-}
-
-.nav-text {
-  font-size: 24rpx;
-}
