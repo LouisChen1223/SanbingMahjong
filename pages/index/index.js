@@ -158,9 +158,6 @@ Page({
         const playerDoc = playersCollection.doc(p.name)
         const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
 
-        // 准备顺位更新字段
-        const rankField = `rank_${p.rank}_count`
-
         if (!existingData) {
           // 新玩家 - 使用set创建，_id为玩家名字
           console.log(`新增玩家: ${p.name}`)
@@ -173,6 +170,10 @@ Page({
               rank_2_count: p.rank === 2 ? 1 : 0,
               rank_3_count: p.rank === 3 ? 1 : 0,
               rank_4_count: p.rank === 4 ? 1 : 0,
+              first_place: p.rank === 1 ? 1 : 0,
+              second_place: p.rank === 2 ? 1 : 0,
+              third_place: p.rank === 3 ? 1 : 0,
+              fourth_place: p.rank === 4 ? 1 : 0,
               max_score: p.scoreNum,
               min_score: p.scoreNum,
               create_time: db.serverDate(),
@@ -181,16 +182,26 @@ Page({
           })
           console.log(`新增玩家 ${p.name} 成功`)
         } else {
-          // 已有玩家 - 更新（使用直接set替代_.inc()排查bug）
-          const newTotalScore = (existingData.total_score || 0) + p.finalScore
-          const newGamesPlayed = (existingData.games_played || 0) + 1
-          const newRankCount = (existingData[rankField] || 0) + 1
-
+          // 已有玩家 - 使用_.inc()更新
           const updateData = {
-            total_score: newTotalScore,
-            games_played: newGamesPlayed,
-            [rankField]: newRankCount,
+            total_score: _.inc(p.finalScore),
+            games_played: _.inc(1),
             update_time: db.serverDate()
+          }
+
+          // 根据顺位更新对应的字段
+          if (p.rank === 1) {
+            updateData.first_place = _.inc(1)
+            updateData.rank_1_count = _.inc(1)
+          } else if (p.rank === 2) {
+            updateData.second_place = _.inc(1)
+            updateData.rank_2_count = _.inc(1)
+          } else if (p.rank === 3) {
+            updateData.third_place = _.inc(1)
+            updateData.rank_3_count = _.inc(1)
+          } else if (p.rank === 4) {
+            updateData.fourth_place = _.inc(1)
+            updateData.rank_4_count = _.inc(1)
           }
 
           // 更新最高/最低打点
@@ -203,7 +214,7 @@ Page({
             updateData.min_score = p.scoreNum
           }
 
-          console.log(`更新玩家 ${p.name}, 原数据:`, existingData.total_score, '新数据:', newTotalScore)
+          console.log(`更新玩家 ${p.name}`)
           await playerDoc.update({
             data: updateData
           })

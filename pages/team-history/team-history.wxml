@@ -23,7 +23,10 @@
             <text class="player-name">{{player.name}}</text>
             <text class="player-team">{{player.team || '无队伍'}}</text>
           </view>
-          <view class="player-score {{player.finalScore >= 0 ? 'positive' : 'negative'}}">{{player.finalScore >= 0 ? '+' : ''}}{{player.finalScore}}</view>
+          <view class="player-scores">
+            <view class="player-score {{player.finalScore >= 0 ? 'positive' : 'negative'}}">{{player.finalScore >= 0 ? '+' : ''}}{{player.finalScore}}</view>
+            <view class="player-points">{{player.scoreNum >= 0 ? '+' : ''}}{{player.scoreNum}}</view>
+          </view>
         </view>
       </view>
     </view>

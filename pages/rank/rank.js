@@ -71,7 +71,14 @@ Page({
     // 总分榜 - 添加格式化字段
     const formattedPlayers = players.map(p => ({
       ...p,
-      totalScoreStr: this.formatScore(p.total_score)
+      totalScoreStr: this.formatScore(p.total_score),
+      // 计算吃一率、避四率和均顺
+      rate1: p.games_played > 0 ? (p.first_place || 0) / p.games_played : 0,
+      rate1Str: p.games_played > 0 ? ((p.first_place || 0) / p.games_played * 100).toFixed(1) + '%' : '0.0%',
+      avoid4: p.games_played > 0 ? 1 - ((p.fourth_place || 0) / p.games_played) : 0,
+      avoid4Str: p.games_played > 0 ? (1 - ((p.fourth_place || 0) / p.games_played) * 100).toFixed(1) + '%' : '0.0%',
+      avgPosition: p.games_played > 0 ? ((p.first_place || 0) * 1 + (p.second_place || 0) * 2 + (p.third_place || 0) * 3 + (p.fourth_place || 0) * 4) / p.games_played : 0,
+      avgPositionStr: p.games_played > 0 ? (((p.first_place || 0) * 1 + (p.second_place || 0) * 2 + (p.third_place || 0) * 3 + (p.fourth_place || 0) * 4) / p.games_played).toFixed(2) : '0.00'
     }))
 
     // 一位率榜
@@ -79,8 +86,8 @@ Page({
       .filter(p => p.games_played > 0)
       .map(p => ({
         ...p,
-        rate1: (p.rank_1_count || 0) / p.games_played,
-        rate1Str: ((p.rank_1_count || 0) / p.games_played * 100).toFixed(1) + '%'
+        rate1: (p.first_place || 0) / p.games_played,
+        rate1Str: ((p.first_place || 0) / p.games_played * 100).toFixed(1) + '%'
       }))
       .sort((a, b) => b.rate1 - a.rate1)
 
@@ -89,8 +96,8 @@ Page({
       .filter(p => p.games_played > 0)
       .map(p => ({
         ...p,
-        avoid4: (p.games_played - (p.rank_4_count || 0)) / p.games_played,
-        avoid4Str: ((p.games_played - (p.rank_4_count || 0)) / p.games_played * 100).toFixed(1) + '%'
+        avoid4: 1 - ((p.fourth_place || 0) / p.games_played),
+        avoid4Str: (1 - ((p.fourth_place || 0) / p.games_played) * 100).toFixed(1) + '%'
       }))
       .sort((a, b) => b.avoid4 - a.avoid4)
 
@@ -120,7 +127,14 @@ Page({
     // 队伍总分榜 - 添加格式化字段
     const formattedTeams = teams.map(t => ({
       ...t,
-      totalScoreStr: this.formatScore(t.total_score)
+      totalScoreStr: this.formatScore(t.total_score),
+      // 计算吃一率、避四率和均顺
+      rate1: t.games_played > 0 ? (t.first_place || 0) / t.games_played : 0,
+      rate1Str: t.games_played > 0 ? ((t.first_place || 0) / t.games_played * 100).toFixed(1) + '%' : '0.0%',
+      avoid4: t.games_played > 0 ? 1 - ((t.fourth_place || 0) / t.games_played) : 0,
+      avoid4Str: t.games_played > 0 ? (1 - ((t.fourth_place || 0) / t.games_played) * 100).toFixed(1) + '%' : '0.0%',
+      avgPosition: t.games_played > 0 ? ((t.first_place || 0) * 1 + (t.second_place || 0) * 2 + (t.third_place || 0) * 3 + (t.fourth_place || 0) * 4) / t.games_played : 0,
+      avgPositionStr: t.games_played > 0 ? (((t.first_place || 0) * 1 + (t.second_place || 0) * 2 + (t.third_place || 0) * 3 + (t.fourth_place || 0) * 4) / t.games_played).toFixed(2) : '0.00'
     }))
 
     // 队伍一位率榜
@@ -138,8 +152,8 @@ Page({
       .filter(t => t.games_played > 0)
       .map(t => ({
         ...t,
-        avoid4: (t.games_played - (t.fourth_place || 0)) / t.games_played,
-        avoid4Str: ((t.games_played - (t.fourth_place || 0)) / t.games_played * 100).toFixed(1) + '%'
+        avoid4: 1 - ((t.fourth_place || 0) / t.games_played),
+        avoid4Str: (1 - ((t.fourth_place || 0) / t.games_played) * 100).toFixed(1) + '%'
       }))
       .sort((a, b) => b.avoid4 - a.avoid4)
 

@@ -139,6 +139,13 @@
   color: rgba(255,255,255,0.8);
 }
 
+.player-scores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5rpx;
+}
+
 .player-score {
   font-size: 36rpx;
   font-weight: bold;
@@ -154,6 +161,13 @@
 .player-score.negative {
   color: #F44336;
   text-shadow: 0 2rpx 4rpx rgba(244, 67, 54, 0.3);
+}
+
+.player-points {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 120rpx;
+  text-align: right;
 }
 
 /* 空状态 */

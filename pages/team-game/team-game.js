@@ -42,54 +42,18 @@ Page({
     const _ = db.command
 
     try {
-      // 检查云开发是否初始化
-      if (!wx.cloud) {
-        console.error('云开发未初始化')
-        wx.showToast({ title: '云开发未初始化', icon: 'none' })
-        return
-      }
-
-      // 获取当前用户openid
-      const { result: userInfo } = await wx.cloud.callFunction({
-        name: 'getUserInfo'
-      })
-
-      if (!userInfo || !userInfo.openid) {
-        console.error('获取用户信息失败:', userInfo)
-        wx.showToast({ title: '获取用户信息失败', icon: 'none' })
-        return
-      }
-
-      const openid = userInfo.openid
-
-      // 查询用户所属的队伍
-      const { data: memberRecords } = await db.collection('team_members')
-        .where({
-          user_id: openid
-        })
-        .get()
-
-      if (memberRecords.length === 0) {
-        this.setData({ teams: [], currentTeam: null })
-        return
-      }
-
-      // 获取队伍详情
-      const teamIds = memberRecords.map(m => m.team_id)
+      // 直接获取所有队伍
       const { data: teams } = await db.collection('teams')
         .where({
-          _id: _.in(teamIds)
+          _id: _.exists(true)
         })
         .get()
 
-      // 标记队长身份
-      const teamsWithRole = teams.map(t => {
-        const memberRecord = memberRecords.find(m => m.team_id === t._id)
-        return {
-          ...t,
-          isCaptain: memberRecord ? memberRecord.role === 'captain' : false
-        }
-      })
+      // 为所有队伍添加isCaptain属性（暂时默认为false）
+      const teamsWithRole = teams.map(t => ({
+        ...t,
+        isCaptain: false
+      }))
 
       this.setData({ teams: teamsWithRole })
     } catch (err) {
@@ -251,115 +215,126 @@ Page({
     this.setData({ loading: true })
 
     try {
-      // 验证所有玩家是否属于某个队伍
-      const playerTeams = await this.validatePlayers(players)
-      if (!playerTeams) {
-        this.setData({ loading: false })
-        return
-      }
+      const db = app.db
+      const _ = db.command
 
-      // 检查是否有同队队员
-      if (this.hasSameTeamPlayers(playerTeams)) {
-        wx.showToast({ title: '不允许同队队员出现在同一场对局', icon: 'none' })
-        this.setData({ loading: false })
-        return
-      }
+      // 计算分数
+      const rankedPlayers = this.calculateScores(players)
 
-      const result = this.calculateScores(players)
-      await this.updateTeamScore(result, playerTeams)
-      this.setData({ result, loading: false })
-      wx.showToast({ title: '结算成功', icon: 'success' })
-    } catch (err) {
-      console.error('结算失败:', err)
-      wx.showToast({ title: '结算失败: ' + err.message, icon: 'none' })
-      this.setData({ loading: false })
-    }
-  },
+      // 检查玩家是否属于队伍
+      const teamMap = new Map()
+      const { data: teams } = await db.collection('teams').get()
+      teams.forEach(team => teamMap.set(team._id, team))
 
-  // 验证玩家是否属于某个队伍
-  async validatePlayers(players) {
-    const db = app.db
-    const playerNames = players.map(p => p.name.trim())
-    const playerTeams = {}
-
-    try {
-      // 查询所有队员信息
       const { data: members } = await db.collection('team_members').get()
+      const memberMap = new Map()
+      members.forEach(member => memberMap.set(member.member_id, member))
 
-      for (const name of playerNames) {
-        const member = members.find(m => m.member_id === name)
-        if (!member) {
-          wx.showToast({ title: `${name} 不是任何队伍的队员，请先添加到队伍中`, icon: 'none' })
-          return null
+      // 检查是否有非队伍成员
+      const nonTeamMembers = rankedPlayers.filter(p => !memberMap.has(p.name))
+      if (nonTeamMembers.length > 0) {
+        wx.showToast({ title: '存在非队伍成员: ' + nonTeamMembers.map(p => p.name).join(', '), icon: 'none' })
+        this.setData({ loading: false })
+        return
+      }
+
+      // 检查是否有同队成员
+      const teamMembers = new Map()
+      for (const p of rankedPlayers) {
+        const member = memberMap.get(p.name)
+        if (member) {
+          const teamId = member.team_id
+          if (!teamMembers.has(teamId)) {
+            teamMembers.set(teamId, [])
+          }
+          teamMembers.get(teamId).push(p.name)
         }
-        playerTeams[name] = member.team_id
       }
 
-      return playerTeams
-    } catch (err) {
-      console.error('验证玩家失败:', err)
-      wx.showToast({ title: '验证玩家失败', icon: 'none' })
-      return null
-    }
-  },
-
-  // 检查是否有同队队员
-  hasSameTeamPlayers(playerTeams) {
-    const teams = Object.values(playerTeams)
-    const uniqueTeams = new Set(teams)
-    return uniqueTeams.size < teams.length
-  },
-
-  // 更新队伍分数
-  async updateTeamScore(result, playerTeams) {
-    const db = app.db
-    const _ = db.command
-
-    // 计算每个队伍的总分变化和队员顺位总和
-    const teamScoreChanges = {}
-    const teamPositionSums = {}
-    result.forEach(p => {
-      const teamId = playerTeams[p.name]
-      if (!teamScoreChanges[teamId]) {
-        teamScoreChanges[teamId] = 0
-        teamPositionSums[teamId] = 0
-      }
-      teamScoreChanges[teamId] += p.finalScore
-      teamPositionSums[teamId] += p.position
-    })
-
-    // 计算队伍排名
-    const teamRank = Object.entries(teamScoreChanges)
-      .map(([teamId, score]) => ({ teamId, score }))
-      .sort((a, b) => b.score - a.score)
-
-    // 更新每个队伍的总分和队员顺位总和
-    for (let i = 0; i < teamRank.length; i++) {
-      const { teamId, score } = teamRank[i]
-      const updateData = {
-        total_score: _.inc(score),
-        games_played: _.inc(1),
-        total_positions: _.inc(teamPositionSums[teamId]),
-        update_time: db.serverDate()
-      }
-
-      await db.collection('teams').doc(teamId).update({
-        data: updateData
+      const sameTeamMembers = []
+      teamMembers.forEach((members, teamId) => {
+        if (members.length > 1) {
+          sameTeamMembers.push({ teamId, members })
+        }
       })
-    }
 
-    // 更新队员个人分数（使用 team_members 集合）
-    for (let p of result) {
-      try {
-        // 查找队员在 team_members 集合中的记录
-        const playerName = p.name.trim()
-        const { data: members } = await db.collection('team_members')
-          .where({ member_id: playerName })
+      if (sameTeamMembers.length > 0) {
+        wx.showToast({ title: '存在同队成员', icon: 'none' })
+        this.setData({ loading: false })
+        return
+      }
+
+      // 计算每个队伍的得分、顺位总和、各顺位次数
+      const teamScores = {}
+      const teamPositionSums = {}
+      const teamFirstPlaces = {}
+      const teamSecondPlaces = {}
+      const teamThirdPlaces = {}
+      const teamFourthPlaces = {}
+
+      rankedPlayers.forEach(p => {
+        const member = memberMap.get(p.name)
+        if (member) {
+          const teamId = member.team_id
+          if (!teamScores[teamId]) {
+            teamScores[teamId] = 0
+            teamPositionSums[teamId] = 0
+            teamFirstPlaces[teamId] = 0
+            teamSecondPlaces[teamId] = 0
+            teamThirdPlaces[teamId] = 0
+            teamFourthPlaces[teamId] = 0
+          }
+          teamScores[teamId] += p.finalScore
+          teamPositionSums[teamId] += p.position
+          if (p.position === 1) {
+            teamFirstPlaces[teamId] += 1
+          } else if (p.position === 2) {
+            teamSecondPlaces[teamId] += 1
+          } else if (p.position === 3) {
+            teamThirdPlaces[teamId] += 1
+          } else if (p.position === 4) {
+            teamFourthPlaces[teamId] += 1
+          }
+        }
+      })
+
+      // 按得分排序队伍
+      const teamRank = Object.entries(teamScores)
+        .map(([teamId, score]) => ({ teamId, score }))
+        .sort((a, b) => b.score - a.score)
+
+      // 更新每个队伍的总分、队员顺位总和、各顺位次数
+      for (let i = 0; i < teamRank.length; i++) {
+        const { teamId, score } = teamRank[i]
+        const updateData = {
+          total_score: _.inc(score),
+          games_played: _.inc(1),
+          total_positions: _.inc(teamPositionSums[teamId]),
+          first_place: _.inc(teamFirstPlaces[teamId]),
+          second_place: _.inc(teamSecondPlaces[teamId]),
+          third_place: _.inc(teamThirdPlaces[teamId]),
+          fourth_place: _.inc(teamFourthPlaces[teamId]),
+          update_time: db.serverDate()
+        }
+
+        const teamUpdateResult = await db.collection('teams').doc(teamId).update({
+          data: updateData
+        })
+
+        if (!teamUpdateResult.stats || teamUpdateResult.stats.updated < 1) {
+          throw new Error(`更新队伍 ${teamId} 数据失败`)
+        }
+      }
+
+      // 更新队员个人分数、最高最低打点、各顺位次数
+      for (const p of rankedPlayers) {
+        const { data: memberDocs } = await db.collection('team_members')
+          .where({ member_id: p.name })
           .get()
 
-        if (members && members.length > 0) {
-          const member = members[0]
-          const memberDoc = db.collection('team_members').doc(member._id)
+        if (memberDocs && memberDocs.length > 0) {
+          const memberDoc = memberDocs[0]
+          const member = memberDoc
 
           // 计算最高和最低打点
           const updateData = {
@@ -378,52 +353,51 @@ Page({
             updateData.min_score = p.scoreNum
           }
 
-          await memberDoc.update({
+          // 更新各顺位次数
+          if (p.position === 1) {
+            updateData.first_place = _.inc(1)
+          } else if (p.position === 2) {
+            updateData.second_place = _.inc(1)
+          } else if (p.position === 3) {
+            updateData.third_place = _.inc(1)
+          } else if (p.position === 4) {
+            updateData.fourth_place = _.inc(1)
+          }
+
+          const memberUpdateResult = await db.collection('team_members').doc(memberDoc._id).update({
             data: updateData
           })
-        } else {
-          console.log(`玩家 ${p.name} 不在 team_members 集合中，跳过更新`)
+
+          if (!memberUpdateResult.stats || memberUpdateResult.stats.updated < 1) {
+            throw new Error(`更新玩家 ${p.name} 数据失败`)
+          }
         }
-      } catch (err) {
-        console.log(`更新团队赛玩家 ${p.name} 分数失败:`, err)
       }
-    }
 
-    // 保存对局记录
-    await this.saveGameRecord(result, playerTeams)
-  },
+      // 保存对局记录
+      const gameData = {
+        players: rankedPlayers.map(p => ({
+          name: p.name,
+          score: p.score,
+          isNegative: p.isNegative,
+          scoreNum: p.scoreNum,
+          finalScore: p.finalScore,
+          position: p.position,
+          team_id: memberMap.get(p.name) ? memberMap.get(p.name).team_id : ''
+        })),
+        create_time: db.serverDate()
+      }
 
-  // 保存对局记录
-  async saveGameRecord(result, playerTeams) {
-    const db = app.db
-
-    try {
       await db.collection('team_games').add({
-        data: {
-          players: result.map((p) => {
-            const playerName = p.name.trim()
-            return {
-              name: playerName,
-              team_id: playerTeams[playerName],
-              scoreNum: p.scoreNum,
-              finalScore: p.finalScore,
-              position: p.position // 记录个人顺位
-            }
-          }),
-          create_time: db.serverDate()
-        }
+        data: gameData
       })
-      console.log('对局记录保存成功')
 
-      // 通知rank页面刷新数据
-      const pages = getCurrentPages()
-      const rankPage = pages.find(p => p.route === 'pages/rank/rank')
-      if (rankPage && rankPage.manualRefresh) {
-        console.log('触发rank页面手动刷新')
-        rankPage.manualRefresh()
-      }
+      this.setData({ result: rankedPlayers, loading: false })
+      wx.showToast({ title: '结算成功', icon: 'success' })
     } catch (err) {
-      console.error('保存对局记录失败:', err)
+      console.error('结算失败:', err)
+      wx.showToast({ title: '结算失败: ' + (err.message || '未知错误'), icon: 'none' })
+      this.setData({ loading: false })
     }
   },
 

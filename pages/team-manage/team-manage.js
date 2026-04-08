@@ -179,11 +179,11 @@ Page({
 
       // 初始化队伍数据
       const teams = [
-        { _id: 'A', team_name: '鸡打狗摸队', total_score: 0, games_played: 0, total_positions: 0, create_time: db.serverDate(), update_time: db.serverDate() },
-        { _id: 'B', team_name: '胖达荣荣队', total_score: 0, games_played: 0, total_positions: 0, create_time: db.serverDate(), update_time: db.serverDate() },
-        { _id: 'C', team_name: '野猪队', total_score: 0, games_played: 0, total_positions: 0, create_time: db.serverDate(), update_time: db.serverDate() },
-        { _id: 'D', team_name: '我反复强调鸽鸽说得不队', total_score: 0, games_played: 0, total_positions: 0, create_time: db.serverDate(), update_time: db.serverDate() },
-        { _id: 'E', team_name: '下只角队', total_score: 0, games_played: 0, total_positions: 0, create_time: db.serverDate(), update_time: db.serverDate() }
+        { _id: 'A', team_name: '鸡打狗摸队', total_score: 0, games_played: 0, total_positions: 0, first_place: 0, second_place: 0, third_place: 0, fourth_place: 0, create_time: db.serverDate(), update_time: db.serverDate() },
+        { _id: 'B', team_name: '胖达荣荣队', total_score: 0, games_played: 0, total_positions: 0, first_place: 0, second_place: 0, third_place: 0, fourth_place: 0, create_time: db.serverDate(), update_time: db.serverDate() },
+        { _id: 'C', team_name: '野猪队', total_score: 0, games_played: 0, total_positions: 0, first_place: 0, second_place: 0, third_place: 0, fourth_place: 0, create_time: db.serverDate(), update_time: db.serverDate() },
+        { _id: 'D', team_name: '我反复强调鸽鸽说得不队', total_score: 0, games_played: 0, total_positions: 0, first_place: 0, second_place: 0, third_place: 0, fourth_place: 0, create_time: db.serverDate(), update_time: db.serverDate() },
+        { _id: 'E', team_name: '下只角队', total_score: 0, games_played: 0, total_positions: 0, first_place: 0, second_place: 0, third_place: 0, fourth_place: 0, create_time: db.serverDate(), update_time: db.serverDate() }
       ]
 
       // 初始化队员数据
@@ -230,6 +230,10 @@ Page({
             games_played: 0,
             max_score: 0,
             min_score: 0,
+            first_place: 0,
+            second_place: 0,
+            third_place: 0,
+            fourth_place: 0,
             create_time: db.serverDate(),
             update_time: db.serverDate()
           }
@@ -272,6 +276,10 @@ Page({
                     total_score: 0,
                     games_played: 0,
                     total_positions: 0,
+                    first_place: 0,
+                    second_place: 0,
+                    third_place: 0,
+                    fourth_place: 0,
                     update_time: db.serverDate()
                   }
                 })
@@ -290,6 +298,10 @@ Page({
                     games_played: 0,
                     max_score: 0,
                     min_score: 0,
+                    first_place: 0,
+                    second_place: 0,
+                    third_place: 0,
+                    fourth_place: 0,
                     update_time: db.serverDate()
                   }
                 })
