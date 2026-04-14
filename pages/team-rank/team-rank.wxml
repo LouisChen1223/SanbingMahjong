@@ -100,7 +100,7 @@
   <view wx:if="{{rankType === 'personal'}}">
     <!-- 个人总分榜 -->
     <view class="rank-list" wx:if="{{currentPersonalTab === 'total' && teamPlayers.length > 0}}">
-      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayers}}" wx:key="name">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayers}}" wx:key="name" bindtap="goToPlayerPage" data-member-id="{{item.name}}">
         <view class="rank-badge">
           <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
           <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -121,7 +121,7 @@
 
     <!-- 个人一位率榜 -->
     <view class="rank-list" wx:if="{{currentPersonalTab === 'rate1' && teamPlayersRate1.length > 0}}">
-      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersRate1}}" wx:key="name">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersRate1}}" wx:key="name" bindtap="goToPlayerPage" data-member-id="{{item.name}}">
         <view class="rank-badge">
           <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
           <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -140,7 +140,7 @@
 
     <!-- 个人避四率榜 -->
     <view class="rank-list" wx:if="{{currentPersonalTab === 'avoid4' && teamPlayersAvoid4.length > 0}}">
-      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersAvoid4}}" wx:key="name">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersAvoid4}}" wx:key="name" bindtap="goToPlayerPage" data-member-id="{{item.name}}">
         <view class="rank-badge">
           <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
           <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -159,7 +159,7 @@
 
     <!-- 个人最高打点榜 -->
     <view class="rank-list" wx:if="{{currentPersonalTab === 'max' && teamPlayersMaxScore.length > 0}}">
-      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersMaxScore}}" wx:key="name">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersMaxScore}}" wx:key="name" bindtap="goToPlayerPage" data-member-id="{{item.name}}">
         <view class="rank-badge">
           <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
           <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -178,7 +178,7 @@
 
     <!-- 个人最低打点榜 -->
     <view class="rank-list" wx:if="{{currentPersonalTab === 'min' && teamPlayersMinScore.length > 0}}">
-      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersMinScore}}" wx:key="name">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{teamPlayersMinScore}}" wx:key="name" bindtap="goToPlayerPage" data-member-id="{{item.name}}">
         <view class="rank-badge">
           <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
           <text wx:else class="normal-rank">{{index + 1}}</text>

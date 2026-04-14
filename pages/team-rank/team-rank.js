@@ -278,5 +278,13 @@ Page({
     wx.navigateTo({
       url: '/pages/team-manage/team-manage'
     })
+  },
+
+  // 跳转到选手个人主页
+  goToPlayerPage(e) {
+    const memberId = e.currentTarget.dataset.memberId
+    wx.navigateTo({
+      url: '/pages/team-player/team-player?memberId=' + memberId
+    })
   }
 })

@@ -1,0 +1,237 @@
+/*pages/team-player/team-player.wxss - 选手个人主页样式*/
+.container {
+  padding: 30rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+  padding: 20rpx 0;
+}
+
+.back-btn {
+  position: absolute;
+  left: 0;
+  font-size: 28rpx;
+  color: #1AAD19;
+  padding: 10rpx 20rpx;
+  border: 2rpx solid #1AAD19;
+  border-radius: 30rpx;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #1AAD19;
+}
+
+.player-info-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.avatar-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20rpx;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  border: 4rpx solid #1AAD19;
+}
+
+.avatar-placeholder {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  border: 4rpx dashed #1AAD19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+}
+
+.avatar-icon {
+  font-size: 60rpx;
+}
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: -5rpx;
+  right: -5rpx;
+  background: #1AAD19;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  border: 3rpx solid #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15);
+}
+
+.player-name {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.team-name {
+  font-size: 28rpx;
+  color: #888;
+}
+
+.stats-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30rpx;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 20rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+}
+
+.stat-value {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #1AAD19;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.score-section {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.score-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx 20rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.score-label {
+  display: block;
+  font-size: 24rpx;
+  color: #888;
+  margin-bottom: 10rpx;
+}
+
+.score-value {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.score-value.positive {
+  color: #1AAD19;
+}
+
+.score-value.negative {
+  color: #E64340;
+}
+
+.recent-games-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.position-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+}
+
+.position-item {
+  width: 100rpx;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.position-1 {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+}
+
+.position-2 {
+  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+}
+
+.position-3 {
+  background: linear-gradient(135deg, #CD7F32, #B87333);
+}
+
+.position-4 {
+  background: linear-gradient(135deg, #708090, #505050);
+}
+
+.history-section {
+  text-align: center;
+}
+
+.history-btn {
+  display: inline-block;
+  background: #1AAD19;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: bold;
+  padding: 20rpx 60rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 4rpx 15rpx rgba(26, 173, 25, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 100rpx 0;
+}
+
+.empty-text {
+  display: block;
+  font-size: 32rpx;
+  color: #999;
+}

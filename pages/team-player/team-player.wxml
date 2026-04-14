@@ -1,0 +1,73 @@
+<!--pages/team-player/team-player.wxml - 选手个人主页-->
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">返回</view>
+    <text class="title">选手个人主页</text>
+  </view>
+
+  <!-- 选手基本信息 -->
+  <view class="player-info-section" wx:if="{{player}}">
+    <view class="avatar-container" bindtap="chooseAvatar">
+      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="avatar-placeholder">
+        <text class="avatar-icon">📷</text>
+      </view>
+      <view class="avatar-edit-btn">编辑</view>
+    </view>
+    <view class="player-name">{{player.member_id}}</view>
+    <view class="team-name">所属队伍: {{teamName}}</view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-section" wx:if="{{player}}">
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{player.games_played || 0}}</text>
+        <text class="stat-label">总场次</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{rate1Str}}</text>
+        <text class="stat-label">吃一率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{avoid4Str}}</text>
+        <text class="stat-label">避四率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{avgPositionStr}}</text>
+        <text class="stat-label">平均顺位</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最高/最低打点 -->
+  <view class="score-section" wx:if="{{player}}">
+    <view class="score-card">
+      <text class="score-label">最高打点</text>
+      <text class="score-value positive">{{maxScoreStr}}</text>
+    </view>
+    <view class="score-card">
+      <text class="score-label">最低打点</text>
+      <text class="score-value {{player.min_score < 0 ? 'negative' : 'positive'}}">{{minScoreStr}}</text>
+    </view>
+  </view>
+
+  <!-- 最近十场顺位 -->
+  <view class="recent-games-section" wx:if="{{recentGames.length > 0}}">
+    <view class="section-title">最近十场顺位</view>
+    <view class="position-list">
+      <view class="position-item {{item.position == 1 ? 'position-1' : item.position == 2 ? 'position-2' : item.position == 3 ? 'position-3' : 'position-4'}}" wx:for="{{recentGames}}" wx:key="index">
+        {{item.position}}位
+      </view>
+    </view>
+  </view>
+
+  <!-- 查看个人历史记录 -->
+  <view class="history-section" wx:if="{{player}}">
+    <view class="history-btn" bindtap="goToHistory">查看个人历史记录</view>
+  </view>
+
+  <view class="empty-state" wx:if="{{!player}}">
+    <text class="empty-text">暂无选手数据</text>
+  </view>
+</view>

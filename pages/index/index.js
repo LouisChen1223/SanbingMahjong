@@ -117,6 +117,8 @@ Page({
       await this.updatePlayerScores(result)
       this.setData({ result: result, loading: false })
       wx.showToast({ title: '结算成功', icon: 'success' })
+      // 结算成功后清空页面，防止重复点击
+      this.resetInputs()
     } catch (err) {
       console.error('结算失败:', err)
       wx.showToast({ title: '结算失败: ' + err.message, icon: 'none' })
@@ -156,20 +158,50 @@ Page({
       try {
         // 使用玩家名字作为_id，保证唯一性
         const playerDoc = playersCollection.doc(p.name)
-        const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
 
-        if (!existingData) {
-          // 新玩家 - 使用set创建，_id为玩家名字
+        // 尝试直接更新，如果玩家不存在则创建
+        try {
+          // 先获取玩家当前数据，用于判断最高/最低打点
+          const { data: existingData } = await playerDoc.get()
+
+          // 尝试更新
+          const updateData = {
+            total_score: _.inc(p.finalScore),
+            games_played: _.inc(1),
+            update_time: db.serverDate()
+          }
+
+          // 根据顺位更新对应的字段
+          if (p.rank === 1) {
+            updateData.first_place = _.inc(1)
+          } else if (p.rank === 2) {
+            updateData.second_place = _.inc(1)
+          } else if (p.rank === 3) {
+            updateData.third_place = _.inc(1)
+          } else if (p.rank === 4) {
+            updateData.fourth_place = _.inc(1)
+          }
+
+          // 更新最高/最低打点
+          if (!existingData || p.scoreNum > (existingData.max_score || 0)) {
+            updateData.max_score = p.scoreNum
+          }
+          if (!existingData || p.scoreNum < (existingData.min_score || 999999)) {
+            updateData.min_score = p.scoreNum
+          }
+
+          await playerDoc.update({
+            data: updateData
+          })
+          console.log(`更新玩家 ${p.name} 成功`)
+        } catch (err) {
+          // 如果更新失败（可能是玩家不存在），则创建新玩家
           console.log(`新增玩家: ${p.name}`)
           await playerDoc.set({
             data: {
               name: p.name,
               total_score: p.finalScore,
               games_played: 1,
-              rank_1_count: p.rank === 1 ? 1 : 0,
-              rank_2_count: p.rank === 2 ? 1 : 0,
-              rank_3_count: p.rank === 3 ? 1 : 0,
-              rank_4_count: p.rank === 4 ? 1 : 0,
               first_place: p.rank === 1 ? 1 : 0,
               second_place: p.rank === 2 ? 1 : 0,
               third_place: p.rank === 3 ? 1 : 0,
@@ -181,44 +213,6 @@ Page({
             }
           })
           console.log(`新增玩家 ${p.name} 成功`)
-        } else {
-          // 已有玩家 - 使用_.inc()更新
-          const updateData = {
-            total_score: _.inc(p.finalScore),
-            games_played: _.inc(1),
-            update_time: db.serverDate()
-          }
-
-          // 根据顺位更新对应的字段
-          if (p.rank === 1) {
-            updateData.first_place = _.inc(1)
-            updateData.rank_1_count = _.inc(1)
-          } else if (p.rank === 2) {
-            updateData.second_place = _.inc(1)
-            updateData.rank_2_count = _.inc(1)
-          } else if (p.rank === 3) {
-            updateData.third_place = _.inc(1)
-            updateData.rank_3_count = _.inc(1)
-          } else if (p.rank === 4) {
-            updateData.fourth_place = _.inc(1)
-            updateData.rank_4_count = _.inc(1)
-          }
-
-          // 更新最高/最低打点
-          const currentMax = existingData.max_score || 0
-          const currentMin = existingData.min_score || 999999
-          if (p.scoreNum > currentMax) {
-            updateData.max_score = p.scoreNum
-          }
-          if (p.scoreNum < currentMin) {
-            updateData.min_score = p.scoreNum
-          }
-
-          console.log(`更新玩家 ${p.name}`)
-          await playerDoc.update({
-            data: updateData
-          })
-          console.log(`更新玩家 ${p.name} 成功`)
         }
       } catch (err) {
         console.error(`更新玩家 ${p.name} 失败:`, err)
@@ -228,14 +222,6 @@ Page({
 
     // 保存对局记录到games集合
     await this.saveGameRecord(result)
-
-    // 通知rank页面刷新数据
-    const pages = getCurrentPages()
-    const rankPage = pages.find(p => p.route === 'pages/rank/rank')
-    if (rankPage && rankPage.manualRefresh) {
-      console.log('触发rank页面手动刷新')
-      rankPage.manualRefresh()
-    }
   },
 
   // 保存对局记录

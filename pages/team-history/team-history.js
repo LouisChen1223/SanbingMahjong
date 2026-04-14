@@ -4,11 +4,19 @@ const app = getApp()
 Page({
   data: {
     games: [],
-    connected: false
+    connected: false,
+    memberId: null,
+    isPersonalHistory: false
   },
 
-  onLoad() {
+  onLoad(options) {
     this.db = app.db
+    if (options.memberId) {
+      this.setData({
+        memberId: options.memberId,
+        isPersonalHistory: true
+      })
+    }
     this.loadGames()
   },
 
@@ -27,8 +35,16 @@ Page({
         .limit(100)
         .get()
 
+      // 筛选包含该玩家的对局
+      let filteredGames = data
+      if (this.data.isPersonalHistory && this.data.memberId) {
+        filteredGames = data.filter(game =>
+          game.players.some(player => player.name === this.data.memberId)
+        )
+      }
+
       // 格式化日期并添加队伍名称和打点信息
-      const formattedGames = data.map(game => {
+      const formattedGames = filteredGames.map(game => {
         const playersWithTeam = game.players.map(player => ({
           ...player,
           team: teamMap.get(player.team_id) || '无队伍',

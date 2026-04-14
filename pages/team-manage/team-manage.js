@@ -234,6 +234,7 @@ Page({
             second_place: 0,
             third_place: 0,
             fourth_place: 0,
+            avatar_url: '',
             create_time: db.serverDate(),
             update_time: db.serverDate()
           }

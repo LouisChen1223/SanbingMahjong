@@ -109,15 +109,23 @@ Page({
         if (res.confirm) {
           wx.showLoading({ title: '删除中...' })
           try {
+            // 检查对局记录是否存在
+            const gameRes = await this.db.collection('games').doc(gameId).get()
+            if (!gameRes.data) {
+              throw new Error('对局记录不存在，无法删除')
+            }
+
             // 撤销玩家数据
             await this.revertGameData(game)
             // 删除对局记录
             await this.db.collection('games').doc(gameId).remove()
 
+            // 立即从本地数组中移除该记录，防止重复点击
+            const updatedGames = this.data.games.filter(g => g._id !== gameId)
+            this.setData({ games: updatedGames })
+
             wx.hideLoading()
             wx.showToast({ title: '删除成功', icon: 'success' })
-
-            this.loadGames()
 
             // 刷新排行榜页面
             const pages = getCurrentPages()
@@ -128,7 +136,7 @@ Page({
           } catch (err) {
             wx.hideLoading()
             console.error('删除失败:', err)
-            wx.showToast({ title: '删除失败', icon: 'none' })
+            wx.showToast({ title: '删除失败: ' + (err.message || '未知错误'), icon: 'none' })
           }
         }
       }
@@ -215,11 +223,9 @@ Page({
         const { data: existingData } = await playerDoc.get().catch(() => ({ data: null }))
 
         if (existingData) {
-          const rankField = `rank_${p.rank}_count`
           const updateData = {
             total_score: _.inc(-p.finalScore),
             games_played: _.inc(-1),
-            [rankField]: _.inc(-1),
             update_time: this.db.serverDate()
           }
 
@@ -319,10 +325,6 @@ Page({
               name: p.name,
               total_score: p.finalScore,
               games_played: 1,
-              rank_1_count: p.rank === 1 ? 1 : 0,
-              rank_2_count: p.rank === 2 ? 1 : 0,
-              rank_3_count: p.rank === 3 ? 1 : 0,
-              rank_4_count: p.rank === 4 ? 1 : 0,
               first_place: p.rank === 1 ? 1 : 0,
               second_place: p.rank === 2 ? 1 : 0,
               third_place: p.rank === 3 ? 1 : 0,
@@ -343,16 +345,12 @@ Page({
           // 根据顺位更新对应的字段
           if (p.rank === 1) {
             updateData.first_place = _.inc(1)
-            updateData.rank_1_count = _.inc(1)
           } else if (p.rank === 2) {
             updateData.second_place = _.inc(1)
-            updateData.rank_2_count = _.inc(1)
           } else if (p.rank === 3) {
             updateData.third_place = _.inc(1)
-            updateData.rank_3_count = _.inc(1)
           } else if (p.rank === 4) {
             updateData.fourth_place = _.inc(1)
-            updateData.rank_4_count = _.inc(1)
           }
 
           if (p.scoreNum > (existingData.max_score || 0)) updateData.max_score = p.scoreNum

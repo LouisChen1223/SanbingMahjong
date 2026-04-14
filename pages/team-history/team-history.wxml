@@ -4,7 +4,7 @@
     <view class="back-btn" bindtap="confirmExit">
       <text class="back-icon">←</text>
     </view>
-    <text class="title">团队赛对局历史</text>
+    <text class="title">{{isPersonalHistory ? memberId + '的对局历史' : '团队赛对局历史'}}</text>
     <view class="header-btns">
       <view class="refresh-btn" bindtap="refreshData">刷新</view>
     </view>
