@@ -6,14 +6,43 @@
 }
 
 .header {
-  text-align: center;
-  padding: 30rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 0 10rpx;
+  gap: 16rpx;
 }
 
 .title {
   font-size: 40rpx;
   font-weight: bold;
   color: #333;
+}
+
+.export-btn {
+  font-size: 24rpx;
+  padding: 0 28rpx;
+  line-height: 56rpx;
+  background: #fff;
+  color: #1AAD19;
+  border: 1rpx solid #1AAD19;
+  border-radius: 28rpx;
+}
+
+.export-row {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+}
+
+.export-btn.primary {
+  background: #1AAD19;
+  color: #fff;
+  border-color: #1AAD19;
+}
+
+.export-btn[disabled] {
+  opacity: 0.5;
 }
 
 .game-list {
@@ -65,6 +94,14 @@
   align-items: center;
   padding: 12rpx 0;
   font-size: 28rpx;
+}
+
+.player-wind {
+  width: 40rpx;
+  font-size: 24rpx;
+  color: #1AAD19;
+  font-weight: bold;
+  margin-right: 12rpx;
 }
 
 .player-name {
@@ -195,4 +232,28 @@
   color: #fff;
   border-radius: 20rpx;
   margin-left: 16rpx;
+}
+
+.load-more-wrap {
+  padding: 32rpx 0 48rpx;
+  text-align: center;
+}
+
+.load-more-btn {
+  display: inline-block;
+  padding: 20rpx 48rpx;
+  font-size: 28rpx;
+  color: #1AAD19;
+  border: 1rpx solid #1AAD19;
+  border-radius: 40rpx;
+  background: #fff;
+}
+
+.load-more-btn.disabled {
+  opacity: 0.5;
+}
+
+.load-more-done {
+  font-size: 26rpx;
+  color: #999;
 }

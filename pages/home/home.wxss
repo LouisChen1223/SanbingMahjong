@@ -43,8 +43,16 @@
   border-left: 8rpx solid #1AAD19;
 }
 
+.entry-card.pstats {
+  border-left: 8rpx solid #f39c12;
+}
+
 .entry-card.team {
   border-left: 8rpx solid #576b95;
+}
+
+.entry-card.fee {
+  border-left: 8rpx solid #e64340;
 }
 
 .card-icon {

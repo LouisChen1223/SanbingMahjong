@@ -1,5 +1,7 @@
 // index.js - 录入页面逻辑
 const app = getApp()
+const { windForOriginalIndex } = require('../../utils/personalWind.js')
+const { ensureActiveSeason } = require('../../utils/personalSeason.js')
 
 // 常量配置
 const START_POINT = 25000
@@ -15,7 +17,8 @@ Page({
       { name: '', score: '', isNegative: false }
     ],
     result: [],
-    loading: false
+    loading: false,
+    halfRoundDurationMinutes: ''
   },
 
   onLoad() {
@@ -38,6 +41,10 @@ Page({
     this.setData({
       [`players[${index}].score`]: value
     })
+  },
+
+  onDurationInput(e) {
+    this.setData({ halfRoundDurationMinutes: e.detail.value })
   },
 
   // 切换正负号
@@ -85,8 +92,9 @@ Page({
     return rankedPlayers
   },
 
-  // 结算按钮
+  // 结算按钮（防抖：校验通过后立即占用同步锁，避免 await 间隙连点重复录入）
   async onSettle() {
+    if (this._settleInFlight) return
     const { players } = this.data
     let totalScore = 0
     for (let p of players) {
@@ -107,21 +115,58 @@ Page({
       if (p.isNegative) scoreValue = -scoreValue
       totalScore += scoreValue // 累加用户输入的百位数（支持负数）
     }
+    const trimmedNames = players.map(p => p.name.trim())
+    if (new Set(trimmedNames).size !== trimmedNames.length) {
+      wx.showToast({ title: '同一对局中四位玩家 ID（姓名）不能重复', icon: 'none' })
+      return
+    }
     if (totalScore !== 1000) {
       wx.showToast({ title: '总点数应为1000(百位)，当前为' + totalScore, icon: 'none', duration: 2000 })
       return
     }
+    const dm = parseInt(this.data.halfRoundDurationMinutes, 10)
+    if (!Number.isFinite(dm) || dm <= 0) {
+      wx.showToast({ title: '请填写本半庄时长（正整数分钟）', icon: 'none' })
+      return
+    }
+
+    this._settleInFlight = true
     this.setData({ loading: true })
     try {
+      const db = app.db
+      const missingNames = []
+      for (const name of trimmedNames) {
+        try {
+          const res = await db.collection('players').doc(name).get()
+          if (!res || !res.data) missingNames.push(name)
+        } catch (err) {
+          missingNames.push(name)
+        }
+      }
+      if (missingNames.length > 0) {
+        const ok = await new Promise((resolve) => {
+          wx.showModal({
+            title: '玩家库提示',
+            content: `以下玩家尚不在个人赛玩家库：${missingNames.join('、')}。确认后将写入本局并为其创建档案。`,
+            confirmText: '确认录入',
+            cancelText: '取消',
+            success: (res) => resolve(!!res.confirm)
+          })
+        })
+        if (!ok) return
+      }
+
       const result = this.calculateScores(players)
       await this.updatePlayerScores(result)
-      this.setData({ result: result, loading: false })
+      this.setData({ result: result })
       wx.showToast({ title: '结算成功', icon: 'success' })
       // 结算成功后清空页面，防止重复点击
       this.resetInputs()
     } catch (err) {
       console.error('结算失败:', err)
       wx.showToast({ title: '结算失败: ' + err.message, icon: 'none' })
+    } finally {
+      this._settleInFlight = false
       this.setData({ loading: false })
     }
   },
@@ -230,17 +275,29 @@ Page({
     const db = app.db
 
     try {
-      await db.collection('games').add({
-        data: {
-          players: result.map(p => ({
-            name: p.name,
-            scoreNum: p.scoreNum,
-            finalScore: p.finalScore,
-            rank: p.rank
-          })),
-          create_time: db.serverDate()
-        }
-      })
+      const activeSeason = await ensureActiveSeason(db)
+      const dm = parseInt(this.data.halfRoundDurationMinutes, 10)
+      const gameUid = `g_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      const gameData = {
+        game_uid: gameUid,
+        season_id: activeSeason._id,
+        season_name: activeSeason.name,
+        players: result.map(p => ({
+          name: p.name,
+          scoreNum: p.scoreNum,
+          finalScore: p.finalScore,
+          rank: p.rank,
+          wind: windForOriginalIndex(p.originalIndex)
+        })),
+        half_round_duration_minutes: dm,
+        create_time: db.serverDate()
+      }
+
+      // 双写：主表 + 备份表，避免历史因主表策略变化而丢失
+      await Promise.all([
+        db.collection('games').add({ data: gameData }),
+        db.collection('games_backup').add({ data: gameData })
+      ])
       console.log('对局记录保存成功')
     } catch (err) {
       console.error('保存对局记录失败:', err)
@@ -250,40 +307,27 @@ Page({
   resetInputs() {
     this.setData({
       players: [
-        { name: '', score: '' },
-        { name: '', score: '' },
-        { name: '', score: '' },
-        { name: '', score: '' }
-      ]
+        { name: '', score: '', isNegative: false },
+        { name: '', score: '', isNegative: false },
+        { name: '', score: '', isNegative: false },
+        { name: '', score: '', isNegative: false }
+      ],
+      halfRoundDurationMinutes: ''
     })
   },
 
-  // 确认退出
+  // 返回首页（录入为 tabBar 页，用 reLaunch 与底部「排行榜」「记录」切换一致）
   confirmExit() {
     wx.showModal({
       title: '确认退出',
-      content: '确定要退出个人赛页面吗？',
+      content: '确定要返回首页吗？',
       success: (res) => {
         if (res.confirm) {
-          wx.navigateBack({
-            delta: 1
+          wx.reLaunch({
+            url: '/pages/home/home'
           })
         }
       }
-    })
-  },
-
-  // 返回首页
-  goHome() {
-    wx.reLaunch({
-      url: '/pages/home/home'
-    })
-  },
-
-  // 查看排行榜
-  goRank() {
-    wx.switchTab({
-      url: '/pages/rank/rank'
     })
   }
 })

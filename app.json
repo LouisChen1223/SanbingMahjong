@@ -2,13 +2,19 @@
   "pages": [
     "pages/home/home",
     "pages/index/index",
+    "pages/personal-stats/personal-stats",
     "pages/team-game/team-game",
     "pages/team-rank/team-rank",
     "pages/team-history/team-history",
     "pages/team-manage/team-manage",
     "pages/rank/rank",
     "pages/history/history",
-    "pages/team-player/team-player"
+    "pages/team-player/team-player",
+    "pages/player/player",
+    "pages/table-fee/table-fee",
+    "pages/season-list/season-list",
+    "pages/season-detail/season-detail",
+    "pages/player-season-history/player-season-history"
   ],
   "window": {
     "backgroundTextStyle": "light",

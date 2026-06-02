@@ -19,10 +19,18 @@ Page({
       { name: '', score: '', isNegative: false }
     ],
     result: [],
-    loading: false
+    loading: false,
+    halfRoundDurationMinutes: '',
+    milkTeaShow: false,
+    milkTeaEmpty: false,
+    milkTeaNamesText: '',
+    milkTeaHeBai: '',
+    milkTeaMemberId: ''
   },
 
   onLoad() {
+    this.db = app.db
+    this.loadMilkTea()
     // 延迟加载队伍，避免阻塞页面
     setTimeout(() => {
       this.loadTeams()
@@ -30,10 +38,53 @@ Page({
   },
 
   onShow() {
+    this.db = app.db
+    this.loadMilkTea()
     // 每次显示时重新加载队伍
     setTimeout(() => {
       this.loadTeams()
     }, 500)
+  },
+
+  async loadMilkTea() {
+    const {
+      getAccountingSlotWindowForNow,
+      computeMilkTeaFromGames,
+      fetchTeamGamesBetween
+    } = require('../../utils/teamTodayMilkTea.js')
+    try {
+      const { dayStart, dayEnd } = getAccountingSlotWindowForNow()
+      const games = await fetchTeamGamesBetween(this.db, dayStart, dayEnd)
+      const m = computeMilkTeaFromGames(games)
+      if (m.empty) {
+        this.setData({
+          milkTeaShow: true,
+          milkTeaEmpty: true,
+          milkTeaNamesText: '',
+          milkTeaHeBai: '',
+          milkTeaMemberId: ''
+        })
+        return
+      }
+      this.setData({
+        milkTeaShow: true,
+        milkTeaEmpty: false,
+        milkTeaNamesText: m.winnerNames.join('、'),
+        milkTeaHeBai: m.ptTotalStr || '',
+        milkTeaMemberId: m.winnerNames.length === 1 ? m.winnerNames[0] : ''
+      })
+    } catch (e) {
+      console.error('奶茶位', e)
+      this.setData({ milkTeaShow: false })
+    }
+  },
+
+  onMilkTeaTap() {
+    const id = this.data.milkTeaMemberId
+    if (!id) return
+    wx.navigateTo({
+      url: '/pages/team-player/team-player?memberId=' + encodeURIComponent(id)
+    })
   },
 
   // 加载用户的队伍列表
@@ -81,6 +132,7 @@ Page({
       currentTeam: null,
       isCaptain: false,
       result: [],
+      halfRoundDurationMinutes: '',
       players: [
         { name: '', score: '', isNegative: false },
         { name: '', score: '', isNegative: false },
@@ -117,6 +169,10 @@ Page({
     this.setData({
       [`players[${index}].name`]: e.detail.value
     })
+  },
+
+  onDurationInput(e) {
+    this.setData({ halfRoundDurationMinutes: e.detail.value })
   },
 
   // 得点输入
@@ -187,8 +243,9 @@ Page({
     return rankedPlayers
   },
 
-  // 结算
+  // 结算（防抖：校验通过后立即占用同步锁，避免 await 间隙连点重复录入）
   async onSettle() {
+    if (this._settleInFlight) return
     const { players } = this.data
 
     // 验证输入
@@ -207,21 +264,30 @@ Page({
       totalScore += scoreValue
     }
 
+    const trimmedNames = players.map(p => p.name.trim())
+    if (new Set(trimmedNames).size !== trimmedNames.length) {
+      wx.showToast({ title: '同一对局中四位玩家 ID（姓名）不能重复', icon: 'none' })
+      return
+    }
+
     if (totalScore !== 1000) {
       wx.showToast({ title: '总点数应为1000(百位)，当前为' + totalScore, icon: 'none', duration: 2000 })
       return
     }
 
-    this.setData({ loading: true })
+    const dm = parseInt(this.data.halfRoundDurationMinutes, 10)
+    if (!Number.isFinite(dm) || dm <= 0) {
+      wx.showToast({ title: '请填写本半庄时长（正整数分钟）', icon: 'none' })
+      return
+    }
 
+    this._settleInFlight = true
+    this.setData({ loading: true })
     try {
+      const rankedPlayers = this.calculateScores(players)
       const db = app.db
       const _ = db.command
 
-      // 计算分数
-      const rankedPlayers = this.calculateScores(players)
-
-      // 检查玩家是否属于队伍
       const teamMap = new Map()
       const { data: teams } = await db.collection('teams').get()
       teams.forEach(team => teamMap.set(team._id, team))
@@ -230,12 +296,19 @@ Page({
       const memberMap = new Map()
       members.forEach(member => memberMap.set(member.member_id, member))
 
-      // 检查是否有非队伍成员
       const nonTeamMembers = rankedPlayers.filter(p => !memberMap.has(p.name))
       if (nonTeamMembers.length > 0) {
-        wx.showToast({ title: '存在非队伍成员: ' + nonTeamMembers.map(p => p.name).join(', '), icon: 'none' })
-        this.setData({ loading: false })
-        return
+        const namesStr = nonTeamMembers.map(p => p.name).join('、')
+        const ok = await new Promise((resolve) => {
+          wx.showModal({
+            title: '成员库提示',
+            content: `以下 ID 不在队伍成员库中：${namesStr}。确认后仍写入本局；未入库成员不会更新战队与个人榜数据。`,
+            confirmText: '确认录入',
+            cancelText: '取消',
+            success: (res) => resolve(!!res.confirm)
+          })
+        })
+        if (!ok) return
       }
 
       // 检查是否有同队成员
@@ -252,15 +325,14 @@ Page({
       }
 
       const sameTeamMembers = []
-      teamMembers.forEach((members, teamId) => {
-        if (members.length > 1) {
-          sameTeamMembers.push({ teamId, members })
+      teamMembers.forEach((namesInTeam, teamId) => {
+        if (namesInTeam.length > 1) {
+          sameTeamMembers.push({ teamId, members: namesInTeam })
         }
       })
 
       if (sameTeamMembers.length > 0) {
         wx.showToast({ title: '存在同队成员', icon: 'none' })
-        this.setData({ loading: false })
         return
       }
 
@@ -375,7 +447,10 @@ Page({
       }
 
       // 保存对局记录
+      const dm = parseInt(this.data.halfRoundDurationMinutes, 10)
+      const gameUid = `tg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
       const gameData = {
+        game_uid: gameUid,
         players: rankedPlayers.map(p => ({
           name: p.name,
           score: p.score,
@@ -385,18 +460,28 @@ Page({
           position: p.position,
           team_id: memberMap.get(p.name) ? memberMap.get(p.name).team_id : ''
         })),
+        half_round_duration_minutes: dm,
         create_time: db.serverDate()
       }
 
-      await db.collection('team_games').add({
-        data: gameData
-      })
+      // 主表必须成功；备份表失败不应导致整单报错（Promise.all 会「一失败全失败」，但非事务，易出现主表已写入仍弹结算失败）
+      await db.collection('team_games').add({ data: gameData })
+      try {
+        await db.collection('team_games_backup').add({ data: gameData })
+      } catch (backupErr) {
+        console.warn('team_games_backup 写入失败（主表 team_games 已保存）:', backupErr)
+      }
 
-      this.setData({ result: rankedPlayers, loading: false })
+      this.setData({
+        result: rankedPlayers,
+        halfRoundDurationMinutes: ''
+      })
       wx.showToast({ title: '结算成功', icon: 'success' })
     } catch (err) {
       console.error('结算失败:', err)
       wx.showToast({ title: '结算失败: ' + (err.message || '未知错误'), icon: 'none' })
+    } finally {
+      this._settleInFlight = false
       this.setData({ loading: false })
     }
   },

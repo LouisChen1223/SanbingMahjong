@@ -1,0 +1,145 @@
+<!--pages/player/player.wxml - 个人赛选手个人主页-->
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">返回</view>
+    <text class="title">个人赛选手主页</text>
+  </view>
+
+  <view class="player-info-section" wx:if="{{player || playerName}}">
+    <view class="avatar-container" bindtap="chooseAvatar">
+      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill" binderror="onAvatarImageError"></image>
+      <view wx:else class="avatar-placeholder">
+        <text class="avatar-icon">📷</text>
+      </view>
+      <view class="avatar-edit-btn">编辑</view>
+    </view>
+    <view class="player-name">{{playerName}}</view>
+    <view class="official-name-box">
+      <text class="official-label">公式战名</text>
+      <input
+        class="official-input"
+        value="{{officialName}}"
+        placeholder="用于导出 Excel，可不填"
+        bindinput="onOfficialNameInput"
+        maxlength="32"
+      />
+      <view class="official-save-btn" bindtap="saveOfficialName">保存</view>
+      <text class="official-hint">导出 Excel/CSV 时，对局中的玩家名将显示为公式战名</text>
+    </view>
+  </view>
+
+  <view class="loading-box" wx:if="{{loadingStats}}">
+    <text>加载统计数据...</text>
+  </view>
+
+  <block wx:elif="{{seasonStats && totalStats}}">
+    <!-- 本赛季 -->
+    <view class="stats-block">
+      <view class="block-header">
+        <text class="block-title">本赛季</text>
+        <text class="block-sub">{{activeSeasonName}}</text>
+      </view>
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-value">{{seasonStats.gamesPlayed}}</text>
+          <text class="stat-label">场次</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value score">{{seasonStats.totalScoreSigned}}</text>
+          <text class="stat-label">总分 PT</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{seasonStats.rate1Str}}</text>
+          <text class="stat-label">一位率</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{seasonStats.avoid4Str}}</text>
+          <text class="stat-label">避四率</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{seasonStats.avgPositionStr}}</text>
+          <text class="stat-label">均顺</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value small">{{seasonStats.placementStr}}</text>
+          <text class="stat-label">1/2/3/4位</text>
+        </view>
+      </view>
+      <view class="score-row">
+        <view class="score-mini">
+          <text class="score-label">最高打点</text>
+          <text class="score-value positive">{{seasonStats.maxScoreStr}}</text>
+        </view>
+        <view class="score-mini">
+          <text class="score-label">最低打点</text>
+          <text class="score-value {{seasonStats.minScoreNegative ? 'negative' : 'positive'}}">{{seasonStats.minScoreStr}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 总计 -->
+    <view class="stats-block total-block">
+      <view class="block-header">
+        <text class="block-title">总计</text>
+        <text class="block-sub">含全部已封存赛季 + 本赛季</text>
+      </view>
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-value">{{totalStats.gamesPlayed}}</text>
+          <text class="stat-label">场次</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value score">{{totalStats.totalScoreSigned}}</text>
+          <text class="stat-label">总分 PT</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{totalStats.rate1Str}}</text>
+          <text class="stat-label">一位率</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{totalStats.avoid4Str}}</text>
+          <text class="stat-label">避四率</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{totalStats.avgPositionStr}}</text>
+          <text class="stat-label">均顺</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value small">{{totalStats.placementStr}}</text>
+          <text class="stat-label">1/2/3/4位</text>
+        </view>
+      </view>
+      <view class="score-row">
+        <view class="score-mini">
+          <text class="score-label">最高打点</text>
+          <text class="score-value positive">{{totalStats.maxScoreStr}}</text>
+        </view>
+        <view class="score-mini">
+          <text class="score-label">最低打点</text>
+          <text class="score-value {{totalStats.minScoreNegative ? 'negative' : 'positive'}}">{{totalStats.minScoreStr}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="recent-games-section" wx:if="{{recentGames.length > 0}}">
+    <view class="section-title">最近十场顺位</view>
+    <view class="position-chart">
+      <canvas canvas-id="positionChart" class="chart-canvas" bindload="onCanvasLoad"></canvas>
+    </view>
+    <view class="position-list">
+      <view class="position-item {{item.position == 1 ? 'position-1' : item.position == 2 ? 'position-2' : item.position == 3 ? 'position-3' : 'position-4'}}" wx:for="{{recentGames}}" wx:key="index">
+        {{item.position}}位
+      </view>
+    </view>
+  </view>
+
+  <view class="action-section" wx:if="{{!loadingStats}}">
+    <view class="action-btn season-history-btn" bindtap="goToSeasonHistory">查看历史赛季数据</view>
+    <view class="action-btn history-btn" bindtap="goToHistory">查看对局记录</view>
+  </view>
+
+  <view class="empty-state" wx:if="{{!loadingStats && !player && !playerName}}">
+    <text class="empty-text">暂无选手数据</text>
+  </view>
+</view>

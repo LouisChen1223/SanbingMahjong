@@ -1,0 +1,132 @@
+.container {
+  padding: 30rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.subtitle {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #888;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 100rpx 30rpx;
+  color: #999;
+}
+
+.empty-text {
+  display: block;
+  font-size: 32rpx;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  display: block;
+  font-size: 26rpx;
+  color: #bbb;
+}
+
+.season-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.season-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.season-range {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #888;
+}
+
+.rank-badge {
+  background: #576b95;
+  border-radius: 12rpx;
+  padding: 10rpx 18rpx;
+  min-width: 80rpx;
+  text-align: center;
+}
+
+.rank-num {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.card-stats {
+  display: flex;
+  justify-content: space-between;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx 10rpx;
+  margin-bottom: 16rpx;
+}
+
+.mini-stat {
+  flex: 1;
+  text-align: center;
+}
+
+.mini-val {
+  display: block;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.mini-val.pt {
+  color: #1AAD19;
+}
+
+.mini-label {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: #999;
+}
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 22rpx;
+}
+
+.placement {
+  color: #666;
+}
+
+.link {
+  color: #576b95;
+}

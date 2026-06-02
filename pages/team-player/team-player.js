@@ -19,10 +19,51 @@ Page({
   onLoad(options) {
     this.db = app.db
     if (options.memberId) {
-      this.setData({ memberId: options.memberId })
-      this.loadPlayerData(options.memberId)
-      this.loadRecentGames(options.memberId)
+      let mid = options.memberId
+      try {
+        mid = decodeURIComponent(mid)
+      } catch (e) {
+        /* keep raw */
+      }
+      this._avatarErrorRetried = false
+      this.setData({ memberId: mid })
+      this.loadPlayerData(mid)
+      this.loadRecentGames(mid)
     }
+  },
+
+  async resolveAvatarDisplayUrl(stored) {
+    if (!stored || typeof stored !== 'string') return ''
+    const s = stored.trim()
+    if (!s) return ''
+    if (s.indexOf('cloud://') === 0) {
+      try {
+        const { fileList } = await wx.cloud.getTempFileURL({ fileList: [s] })
+        const item = fileList && fileList[0]
+        if (!item || item.status !== 0 || !item.tempFileURL) {
+          console.warn('头像临时链接失败', item && item.errMsg)
+          return ''
+        }
+        return item.tempFileURL
+      } catch (e) {
+        console.error('resolveAvatarDisplayUrl', e)
+        return ''
+      }
+    }
+    return s
+  },
+
+  async refreshAvatarDisplay() {
+    const raw = this.data.player && this.data.player.avatar_url
+    if (!raw) return
+    const url = await this.resolveAvatarDisplayUrl(raw)
+    if (url) this.setData({ avatarUrl: url })
+  },
+
+  onAvatarImageError() {
+    if (this._avatarErrorRetried) return
+    this._avatarErrorRetried = true
+    this.refreshAvatarDisplay()
   },
 
   // 加载选手数据
@@ -65,6 +106,7 @@ Page({
         // 预先格式化最高打点和最低打点
         const maxScoreStr = this.formatInteger(player.max_score)
         const minScoreStr = this.formatInteger(player.min_score)
+        const avatarUrl = await this.resolveAvatarDisplayUrl(player.avatar_url)
 
         this.setData({
           player: player,
@@ -73,7 +115,7 @@ Page({
           avgPositionStr: avgPositionStr,
           maxScoreStr: maxScoreStr,
           minScoreStr: minScoreStr,
-          avatarUrl: player.avatar_url || ''
+          avatarUrl
         })
       }
     } catch (err) {
@@ -99,12 +141,16 @@ Page({
           const playerInGame = game.players.find(p => p.name === memberId)
           if (playerInGame) {
             recentGames.push({
-              position: playerInGame.position
+              position: playerInGame.position || playerInGame.rank
             })
           }
         }
+        recentGames.reverse()
 
-        this.setData({ recentGames: recentGames })
+        this.setData({ recentGames: recentGames }, () => {
+          // 数据加载完成后绘制折线图
+          this.drawPositionChart()
+        })
       }
     } catch (err) {
       console.error('加载最近对局失败:', err)
@@ -161,19 +207,16 @@ Page({
       })
 
       const fileID = uploadResult.fileID
-      
-      // 获取图片的临时链接
-      const { fileList } = await wx.cloud.getTempFileURL({
-        fileList: [fileID]
-      })
-      
-      const avatarUrl = fileList[0].tempFileURL
+      await this.updatePlayerAvatar(fileID)
 
-      // 更新玩家的头像
-      await this.updatePlayerAvatar(avatarUrl)
-
-      this.setData({ 
-        avatarUrl: avatarUrl,
+      const displayUrl = await this.resolveAvatarDisplayUrl(fileID)
+      const mergedPlayer = this.data.player
+        ? { ...this.data.player, avatar_url: fileID }
+        : { member_id: memberId, avatar_url: fileID }
+      this._avatarErrorRetried = false
+      this.setData({
+        player: mergedPlayer,
+        avatarUrl: displayUrl,
         loadingAvatar: false
       })
 
@@ -187,10 +230,8 @@ Page({
     }
   },
 
-  // 更新玩家头像
-  async updatePlayerAvatar(avatarUrl) {
+  async updatePlayerAvatar(avatarFileId) {
     try {
-      // 从team_members集合中获取选手数据
       const { data: members } = await this.db.collection('team_members')
         .where({ member_id: this.data.memberId })
         .get()
@@ -199,7 +240,7 @@ Page({
         const member = members[0]
         await this.db.collection('team_members').doc(member._id).update({
           data: {
-            avatar_url: avatarUrl,
+            avatar_url: avatarFileId,
             update_time: this.db.serverDate()
           }
         })
@@ -208,5 +249,80 @@ Page({
       console.error('更新头像失败:', err)
       throw err
     }
+  },
+
+  // 绘制顺位折线图
+  drawPositionChart() {
+    const recentGames = this.data.recentGames
+    if (recentGames.length === 0) return
+
+    const ctx = wx.createCanvasContext('positionChart')
+    const canvasWidth = 340 // 画布宽度（根据实际情况调整）
+    const canvasHeight = 300 // 画布高度（根据实际情况调整）
+    const padding = 40 // 边距
+    const dataLength = recentGames.length
+    const xStep = dataLength <= 1 ? 0 : (canvasWidth - 2 * padding) / (dataLength - 1)
+    const yStep = (canvasHeight - 2 * padding) / 3 // 4个顺位，所以分为3段
+
+    // 绘制网格
+    ctx.setStrokeStyle('#e0e0e0')
+    ctx.setLineWidth(1)
+    for (let i = 0; i <= 4; i++) {
+      const y = padding + i * yStep
+      ctx.beginPath()
+      ctx.moveTo(padding, y)
+      ctx.lineTo(canvasWidth - padding, y)
+      ctx.stroke()
+      ctx.fillStyle = '#666'
+      ctx.font = '12px Arial'
+      ctx.textAlign = 'right'
+      ctx.fillText((i + 1).toString() + '位', padding - 10, y + 5)
+    }
+
+    // 绘制折线
+    ctx.setStrokeStyle('#1AAD19')
+    ctx.setLineWidth(2)
+    ctx.beginPath()
+    for (let i = 0; i < dataLength; i++) {
+      const x = padding + i * xStep
+      const y = padding + (recentGames[i].position - 1) * yStep
+      if (i === 0) {
+        ctx.moveTo(x, y)
+      } else {
+        ctx.lineTo(x, y)
+      }
+    }
+    ctx.stroke()
+
+    // 绘制数据点
+    ctx.setFillStyle('#1AAD19')
+    for (let i = 0; i < dataLength; i++) {
+      const x = padding + i * xStep
+      const y = padding + (recentGames[i].position - 1) * yStep
+      ctx.beginPath()
+      ctx.arc(x, y, 4, 0, 2 * Math.PI)
+      ctx.fill()
+    }
+
+    // 绘制x轴标签
+    ctx.fillStyle = '#666'
+    ctx.font = '12px Arial'
+    ctx.textAlign = 'center'
+    for (let i = 0; i < dataLength; i++) {
+      const x = padding + i * xStep
+      ctx.fillText((i + 1).toString(), x, canvasHeight - padding + 15)
+    }
+
+    ctx.draw()
+  },
+
+  // 画布加载完成
+  onCanvasLoad() {
+    this.drawPositionChart()
+  },
+
+  onShow() {
+    this.refreshAvatarDisplay()
+    this.drawPositionChart()
   }
 })

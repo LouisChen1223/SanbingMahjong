@@ -1,0 +1,39 @@
+<view class="container">
+  <view class="rule-card">
+    <text class="rule-title">计费说明</text>
+    <text class="rule-text">统计日：每天12:00换日（如「周一」= 周一12:00～周二12:00）。</text>
+    <text class="rule-text">单价：周六全天、周日0点～23点为 12 元/人·小时；周日23点起至周五24点为 6 元/人·小时。半庄跨时段按分钟拆分计价。</text>
+    <text class="rule-note">未填写时长的历史对局不计入本页。</text>
+  </view>
+
+  <view class="picker-card">
+    <text class="picker-label">选择统计日</text>
+    <picker mode="selector" range="{{slotLabels}}" value="{{slotIndex}}" bindchange="onSlotChange">
+      <view class="picker-value">{{slotLabels[slotIndex]}}</view>
+    </picker>
+  </view>
+
+  <view wx:if="{{loading}}" class="hint">加载中…</view>
+
+  <view wx:if="{{!loading && rows.length === 0}}" class="hint">该日无有效时长记录</view>
+
+  <view wx:if="{{!loading && rows.length > 0}}" class="summary-card">
+    <text class="summary-line">当日总桌费（合计）：<text class="sum-money">{{totalFeeStr}}</text> 元</text>
+    <text class="summary-sub">（各玩家本日应付之和）</text>
+  </view>
+
+  <view wx:if="{{!loading && rows.length > 0}}" class="table-card">
+    <view class="table-head row">
+      <text class="col name">玩家</text>
+      <text class="col min">总时长(分)</text>
+      <text class="col fee">桌费(元)</text>
+    </view>
+    <view class="table-body">
+      <view class="row" wx:for="{{rows}}" wx:key="name">
+        <text class="col name">{{item.name}}</text>
+        <text class="col min">{{item.minutes}}</text>
+        <text class="col fee">{{item.feeStr}}</text>
+      </view>
+    </view>
+  </view>
+</view>

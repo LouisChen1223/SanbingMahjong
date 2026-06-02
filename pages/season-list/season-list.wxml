@@ -1,0 +1,35 @@
+<view class="container">
+  <view class="header">
+    <text class="title">历史赛季</text>
+    <text class="subtitle">点击查看封存时的排行榜快照</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="empty" wx:elif="{{seasons.length === 0}}">
+    <text class="empty-text">暂无已封存赛季</text>
+    <text class="empty-hint">在排行榜页点击「开启新赛季」后，旧赛季数据会出现在这里</text>
+  </view>
+
+  <view class="season-list" wx:else>
+    <view
+      class="season-item"
+      wx:for="{{seasons}}"
+      wx:key="_id"
+      bindtap="goToDetail"
+      data-id="{{item._id}}"
+      data-name="{{item.name}}"
+    >
+      <view class="season-main">
+        <text class="season-name">{{item.name}}</text>
+        <text class="season-range">{{item.rangeStr}}</text>
+      </view>
+      <view class="season-meta">
+        <text class="player-count">{{item.playerCountStr}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,17 @@
+@import "../rank/rank.wxss";
+
+.header {
+  position: static;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.loading {
+  text-align: center;
+  padding: 80rpx 0;
+  color: #999;
+}
+
+.empty-state {
+  padding: 80rpx 0;
+}

@@ -1,0 +1,8 @@
+{
+  "name": "mahjong-miniprogram",
+  "private": true,
+  "description": "日麻计分小程序（含桌费工具单元测试）",
+  "scripts": {
+    "test": "node --test utils/tableFee.test.js"
+  }
+}

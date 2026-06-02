@@ -16,6 +16,20 @@
     <view class="rank-type-tab {{rankType === 'personal' ? 'active' : ''}}" bindtap="switchRankType" data-type="personal">个人榜</view>
   </view>
 
+  <view class="milk-tea-card" wx:if="{{milkTeaShow}}">
+    <text class="milk-tea-emoji">🧋</text>
+    <view class="milk-tea-main">
+      <text class="milk-tea-title">今日奶茶位</text>
+      <text class="milk-tea-hint">按每日12:00换日（与桌费统计一致），本统计日内团队对局得点（百位）累计最高</text>
+      <view wx:if="{{milkTeaEmpty}}" class="milk-tea-empty">今日暂无团队对局或未统计到 PT</view>
+      <view wx:else class="milk-tea-body {{milkTeaMemberId ? 'clickable' : ''}}" bindtap="onMilkTeaTap">
+        <text class="milk-tea-names">{{milkTeaNamesText}}</text>
+        <text class="milk-tea-meta">今日累计 PT：{{milkTeaHeBai}}</text>
+        <text wx:if="{{milkTeaMemberId}}" class="milk-tea-tap">点击查看主页</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 队伍榜切换标签 -->
   <view class="tab-container" wx:if="{{rankType === 'team'}}">
     <view class="tab {{currentTab === 'teamTotal' ? 'active' : ''}}" bindtap="switchTab" data-tab="teamTotal">队伍总分</view>

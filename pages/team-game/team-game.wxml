@@ -5,6 +5,19 @@
       <text class="back-icon">←</text>
     </view>
     <text class="title">团队战录入</text>
+    <view class="header-placeholder"></view>
+  </view>
+
+  <view class="milk-tea-strip" wx:if="{{milkTeaShow}}">
+    <text class="milk-tea-strip-emoji">🧋</text>
+    <view class="milk-tea-strip-text">
+      <text wx:if="{{milkTeaEmpty}}" class="milk-tea-strip-line">今日奶茶位：暂无对局</text>
+      <block wx:else>
+        <text class="milk-tea-strip-line strong">今日奶茶位：{{milkTeaNamesText}}</text>
+        <text class="milk-tea-strip-sub">今日累计 PT：{{milkTeaHeBai}}</text>
+      </block>
+    </view>
+    <view wx:if="{{milkTeaMemberId}}" class="milk-tea-strip-link" bindtap="onMilkTeaTap">主页</view>
   </view>
 
   <view class="input-section">
@@ -20,9 +33,13 @@
         </view>
       </view>
     </view>
+    <view class="duration-row">
+      <text class="duration-label">本半庄时长</text>
+      <input class="duration-input" type="number" placeholder="分钟" value="{{halfRoundDurationMinutes}}" bindinput="onDurationInput" />
+    </view>
   </view>
 
-  <button class="settle-btn" bindtap="onSettle" loading="{{loading}}">结算</button>
+  <button class="settle-btn" bindtap="onSettle" loading="{{loading}}" disabled="{{loading}}">结算</button>
 
   <view class="result-section" wx:if="{{result.length > 0}}">
     <text class="section-title">本局结果</text>

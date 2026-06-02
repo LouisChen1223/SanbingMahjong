@@ -1,7 +1,22 @@
 <!--history.wxml-->
 <view class="container">
   <view class="header">
-    <text class="title">对局记录</text>
+    <text class="title">{{isPersonalHistory ? name + '的对局历史' : '对局记录'}}</text>
+    <view wx:if="{{!editingGame}}" class="export-row">
+      <button
+        wx:if="{{isPersonalHistory}}"
+        class="export-btn primary"
+        size="mini"
+        disabled="{{exportingXlsx || loading}}"
+        bindtap="onExportPersonalXlsx"
+      >{{exportingXlsx ? '生成中…' : '导出指定Excel'}}</button>
+      <button
+        class="export-btn"
+        size="mini"
+        disabled="{{exporting || loading}}"
+        bindtap="onExportExcel"
+      >{{exporting ? '导出中…' : '导出Excel'}}</button>
+    </view>
   </view>
 
   <view class="game-list" wx:if="{{!editingGame}}">
@@ -20,7 +35,8 @@
         </view>
       </view>
       <view class="game-players">
-        <view class="player-row" wx:for="{{item.players}}" wx:for-item="player" wx:key="name">
+        <view class="player-row" wx:for="{{item.playersDisplay}}" wx:for-item="player" wx:key="name">
+          <text class="player-wind" wx:if="{{player.wind}}">{{player.wind}}</text>
           <text class="player-name">{{player.name}}</text>
           <text class="player-score">{{player.scoreNum}}</text>
           <text class="player-result {{player.finalScore >= 0 ? 'positive' : 'negative'}}">
@@ -29,6 +45,13 @@
         </view>
       </view>
     </view>
+
+    <view wx:if="{{!isPersonalHistory && !loading && games.length > 0}}" class="load-more-wrap">
+      <view wx:if="{{hasMoreGlobal}}" class="load-more-btn {{loadingMore ? 'disabled' : ''}}" bindtap="onLoadMoreGames">
+        {{loadingMore ? '加载中…' : '加载更多'}}
+      </view>
+      <view wx:else class="load-more-done">已显示全部对局</view>
+    </view>
   </view>
 
   <!-- 修改界面 -->
@@ -36,7 +59,7 @@
     <view class="section-title">修改对局</view>
     <view class="edit-players">
       <view class="edit-player-item" wx:for="{{editPlayers}}" wx:key="index">
-        <text class="player-label">玩家{{index + 1}}</text>
+        <text class="player-label">{{windRowLabels[index]}}家</text>
         <input class="name-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="onEditName" />
         <view class="score-input-wrapper">
           <button class="sign-btn {{item.isNegative ? 'negative' : 'positive'}}" data-index="{{index}}" bindtap="toggleEditNegative">{{item.isNegative ? '-' : '+'}}</button>

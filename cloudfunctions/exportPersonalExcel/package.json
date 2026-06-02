@@ -1,0 +1,12 @@
+{
+  "name": "exportPersonalExcel",
+  "version": "1.0.0",
+  "description": "导出个人战分数为指定排版的 Excel 文件",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "exceljs": "latest",
+    "wx-server-sdk": "latest"
+  }
+}

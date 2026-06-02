@@ -1,26 +1,62 @@
 <!--rank.wxml - 实时排行榜页面-->
 <view class="container">
   <view class="header">
-    <text class="title">实时排行榜</text>
-    <text class="subtitle">数据实时同步</text>
-    <view class="header-btns">
-      <view class="refresh-btn" bindtap="refreshData">刷新</view>
-      <view class="clear-btn" bindtap="clearAllData">清空记录</view>
+    <view class="header-top">
+      <view class="refresh-icon-btn" bindtap="refreshData">
+        <text class="refresh-icon">↻</text>
+      </view>
+    </view>
+    <text class="title">{{activeSeasonName || '实时排行榜'}}</text>
+    <text class="subtitle">{{activeSeasonRange || '数据实时同步'}}</text>
+    <view class="action-row">
+      <view class="action-btn history" bindtap="goToSeasonList">历史赛季</view>
+      <view class="action-btn season" bindtap="startNewSeason">开启新赛季</view>
     </view>
   </view>
 
   <!-- 个人榜切换标签 -->
   <view class="tab-container">
     <view class="tab {{currentTab === 'total' ? 'active' : ''}}" bindtap="switchTab" data-tab="total">总分榜</view>
+    <view class="tab {{currentTab === 'today' ? 'active' : ''}}" bindtap="switchTab" data-tab="today">今日榜</view>
     <view class="tab {{currentTab === 'rate1' ? 'active' : ''}}" bindtap="switchTab" data-tab="rate1">一位率</view>
     <view class="tab {{currentTab === 'avoid4' ? 'active' : ''}}" bindtap="switchTab" data-tab="avoid4">避四率</view>
     <view class="tab {{currentTab === 'max' ? 'active' : ''}}" bindtap="switchTab" data-tab="max">最高打点</view>
     <view class="tab {{currentTab === 'min' ? 'active' : ''}}" bindtap="switchTab" data-tab="min">最低打点</view>
   </view>
 
+  <!-- 今日榜 -->
+  <view class="today-wrap" wx:if="{{currentTab === 'today'}}">
+    <view class="today-title">
+      <text class="today-main">今日排行榜（个人赛）</text>
+      <text class="today-sub">{{todaySlotTitle}}</text>
+    </view>
+    <view class="today-empty" wx:if="{{!todayHasGames}}">
+      <text class="empty-text">当前统计日暂无对局</text>
+      <text class="empty-hint">有对局后这里会自动出现今日榜</text>
+    </view>
+    <view class="today-card" wx:else>
+      <view class="today-head row">
+        <text class="t-rank">#</text>
+        <text class="t-name">玩家</text>
+        <text class="t-games">局</text>
+        <text class="t-pt">PT</text>
+        <text class="t-avg">场均</text>
+      </view>
+      <view class="today-body">
+        <view class="row today-item" wx:for="{{todayRankList}}" wx:key="name" bindtap="goToPlayerPage" data-name="{{item.name}}">
+          <text class="t-rank">{{item.rank}}</text>
+          <text class="t-name">{{item.name}}</text>
+          <text class="t-games">{{item.games}}</text>
+          <text class="t-pt {{item.ptSum >= 0 ? 'pos' : 'neg'}}">{{item.ptSumStr}}</text>
+          <text class="t-avg">{{item.avgStr}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 总分榜 -->
   <view class="rank-list" wx:if="{{currentTab === 'total' && players.length > 0}}">
-    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{players}}" wx:key="_id">
+    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{players}}" wx:key="_id" bindtap="goToPlayerPage" data-name="{{item.name}}">
       <view class="rank-badge">
         <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
         <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -40,7 +76,7 @@
 
   <!-- 一位率榜 -->
   <view class="rank-list" wx:if="{{currentTab === 'rate1' && rate1List.length > 0}}">
-    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{rate1List}}" wx:key="_id">
+    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{rate1List}}" wx:key="_id" bindtap="goToPlayerPage" data-name="{{item.name}}">
       <view class="rank-badge">
         <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
         <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -58,7 +94,7 @@
 
   <!-- 避四率榜 -->
   <view class="rank-list" wx:if="{{currentTab === 'avoid4' && avoid4List.length > 0}}">
-    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{avoid4List}}" wx:key="_id">
+    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{avoid4List}}" wx:key="_id" bindtap="goToPlayerPage" data-name="{{item.name}}">
       <view class="rank-badge">
         <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
         <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -76,7 +112,7 @@
 
   <!-- 最高打点榜 -->
   <view class="rank-list" wx:if="{{currentTab === 'max' && maxScoreList.length > 0}}">
-    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{maxScoreList}}" wx:key="_id">
+    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{maxScoreList}}" wx:key="_id" bindtap="goToPlayerPage" data-name="{{item.name}}">
       <view class="rank-badge">
         <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
         <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -94,7 +130,7 @@
 
   <!-- 最低打点榜 -->
   <view class="rank-list" wx:if="{{currentTab === 'min' && minScoreList.length > 0}}">
-    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{minScoreList}}" wx:key="_id">
+    <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{minScoreList}}" wx:key="_id" bindtap="goToPlayerPage" data-name="{{item.name}}">
       <view class="rank-badge">
         <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
         <text wx:else class="normal-rank">{{index + 1}}</text>
@@ -110,7 +146,7 @@
     </view>
   </view>
 
-  <view class="empty-state" wx:if="{{players.length === 0}}">
+  <view class="empty-state" wx:if="{{currentTab !== 'today' && players.length === 0}}">
     <text class="empty-text">暂无数据</text>
     <text class="empty-hint">去录入页面开始第一局吧</text>
   </view>

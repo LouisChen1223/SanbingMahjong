@@ -1,0 +1,84 @@
+.container {
+  padding: 30rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #1AAD19;
+  margin-bottom: 10rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #888;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 100rpx 30rpx;
+  color: #999;
+}
+
+.empty-text {
+  display: block;
+  font-size: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.empty-hint {
+  display: block;
+  font-size: 26rpx;
+  color: #bbb;
+  line-height: 1.6;
+}
+
+.season-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.season-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.season-range {
+  display: block;
+  font-size: 24rpx;
+  color: #888;
+}
+
+.player-count {
+  font-size: 26rpx;
+  color: #576b95;
+  margin-right: 12rpx;
+}
+
+.arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
+.season-meta {
+  display: flex;
+  align-items: center;
+}

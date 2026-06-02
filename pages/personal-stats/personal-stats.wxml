@@ -1,0 +1,105 @@
+<view class="container">
+  <view class="header">
+    <text class="title">方位统计</text>
+    <text class="sub">仅统计已记录方位的对局（新录入自本版本起）</text>
+  </view>
+
+  <view class="card">
+    <view class="table-head row">
+      <text class="col-w">方位</text>
+      <text class="col-n">样本</text>
+      <text class="col-r">吃一率</text>
+      <text class="col-r">四位率</text>
+    </view>
+    <view class="table-body">
+      <view class="row" wx:for="{{windRows}}" wx:key="wind">
+        <text class="col-w">{{item.wind}}</text>
+        <text class="col-n">{{item.games}}</text>
+        <text class="col-r">{{item.rate1Str}}</text>
+        <text class="col-r">{{item.rate4Str}}</text>
+      </view>
+    </view>
+    <text class="meta">已纳入统计的半庄数（四条均有方位）：{{windQualifiedGames}}（各方位样本数见上表「样本」列）</text>
+  </view>
+
+  <view class="slogan-wrap" wx:if="{{windSlogan}}">
+    <text class="slogan">{{windSlogan}}</text>
+  </view>
+  <view class="slogan-wrap muted" wx:else>
+    <text class="slogan small">暂无足够带方位数据的对局</text>
+  </view>
+
+  <view class="header slot-head">
+    <text class="title">本统计日称号</text>
+    <text class="sub">{{slotTitle}}</text>
+  </view>
+
+  <view class="card titles" wx:if="{{currentSlotHasGames}}">
+    <view class="title-line">
+      <text class="tag que">今日雀王</text>
+      <text class="who">{{queWang.name}}</text>
+      <text class="side" wx:if="{{queWang.side}}">{{queWang.side}}</text>
+    </view>
+    <view class="title-line">
+      <text class="tag fa">今日发王</text>
+      <text class="who">{{faWang.name}}</text>
+      <text class="side" wx:if="{{faWang.side}}">{{faWang.side}}</text>
+    </view>
+    <view class="title-line">
+      <text class="tag gou">今日苟王</text>
+      <text class="who">{{gouWang.name}}</text>
+      <text class="side" wx:if="{{gouWang.side}}">{{gouWang.side}}</text>
+    </view>
+    <view class="title-line">
+      <text class="tag ye">今日野猪王</text>
+      <text class="who">{{yeZhuWang.name}}</text>
+      <text class="side" wx:if="{{yeZhuWang.side}}">{{yeZhuWang.side}}</text>
+    </view>
+  </view>
+  <view class="card no-data" wx:else>当前统计日暂无对局，不展示四王。</view>
+
+  <view class="header slot-head" wx:if="{{currentSlotHasGames}}">
+    <text class="title">今日排行榜（个人赛）</text>
+    <text class="sub">仅统计 {{slotTitle}} 内的对局</text>
+  </view>
+  <view class="card today-rank" wx:if="{{currentSlotHasGames}}">
+    <view class="today-head row">
+      <text class="t-rank">#</text>
+      <text class="t-name">玩家</text>
+      <text class="t-games">局</text>
+      <text class="t-pt">PT</text>
+      <text class="t-avg">场均</text>
+    </view>
+    <view class="today-body">
+      <view class="row today-item" wx:for="{{todayRankList}}" wx:key="name">
+        <text class="t-rank">{{item.rank}}</text>
+        <text class="t-name">{{item.name}}</text>
+        <text class="t-games">{{item.games}}</text>
+        <text class="t-pt {{item.ptSum >= 0 ? 'pos' : 'neg'}}">{{item.ptSumStr}}</text>
+        <text class="t-avg">{{item.avgStr}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="header slot-head">
+    <text class="title">四王历史</text>
+    <text class="sub">仅记录有对局的统计日（无对局不计入）</text>
+  </view>
+
+  <view class="card" wx:if="{{kingHistory.length > 0}}">
+    <view class="history-item" wx:for="{{kingHistory}}" wx:key="slotKey">
+      <text class="history-date">{{item.slotTitle}}（{{item.gameCount}}局）</text>
+      <view class="title-line"><text class="tag que">雀王</text><text class="who">{{item.queWang}}</text></view>
+      <view class="title-line"><text class="tag fa">发王</text><text class="who">{{item.faWang}}</text></view>
+      <view class="title-line"><text class="tag gou">苟王</text><text class="who">{{item.gouWang}}</text></view>
+      <view class="title-line"><text class="tag ye">野猪王</text><text class="who">{{item.yeZhuWang}}</text></view>
+    </view>
+  </view>
+  <view class="card no-data" wx:else>暂无可展示的四王历史。</view>
+
+  <view class="hint">统计日以每日 12:00 为界，与桌费页一致；称号按本日内对局累计。</view>
+
+  <view class="refresh-bar">
+    <button class="refresh-btn" bindtap="onRefresh" loading="{{loading}}">刷新</button>
+  </view>
+</view>

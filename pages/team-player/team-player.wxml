@@ -8,7 +8,7 @@
   <!-- 选手基本信息 -->
   <view class="player-info-section" wx:if="{{player}}">
     <view class="avatar-container" bindtap="chooseAvatar">
-      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill" binderror="onAvatarImageError"></image>
       <view wx:else class="avatar-placeholder">
         <text class="avatar-icon">📷</text>
       </view>
@@ -55,6 +55,9 @@
   <!-- 最近十场顺位 -->
   <view class="recent-games-section" wx:if="{{recentGames.length > 0}}">
     <view class="section-title">最近十场顺位</view>
+    <view class="position-chart">
+      <canvas canvas-id="positionChart" class="chart-canvas" bindload="onCanvasLoad"></canvas>
+    </view>
     <view class="position-list">
       <view class="position-item {{item.position == 1 ? 'position-1' : item.position == 2 ? 'position-2' : item.position == 3 ? 'position-3' : 'position-4'}}" wx:for="{{recentGames}}" wx:key="index">
         {{item.position}}位

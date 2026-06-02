@@ -1,0 +1,9 @@
+{
+  "name": "adminDeletePlayer",
+  "version": "1.0.0",
+  "description": "按玩家名删除 players 集合文档（运维用）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

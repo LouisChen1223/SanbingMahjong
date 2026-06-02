@@ -1,12 +1,19 @@
 // pages/team-history/team-history.js - 团队赛对局历史页面
 const app = getApp()
+const PRIMARY_TEAM_GAMES_COLLECTION = 'team_games'
+const FALLBACK_TEAM_GAMES_COLLECTION = 'team_games_backup'
+// 小程序端直连云库单次最多 20 条；hasMore 按满页 20 判断才能继续翻页
+const TEAM_HISTORY_PAGE_SIZE = 20
 
 Page({
   data: {
     games: [],
     connected: false,
     memberId: null,
-    isPersonalHistory: false
+    isPersonalHistory: false,
+    loading: false,
+    loadingMore: false,
+    hasMore: false
   },
 
   onLoad(options) {
@@ -20,9 +27,39 @@ Page({
     this.loadGames()
   },
 
-  // 加载对局历史
-  async loadGames() {
+  async resolveTeamGameCollection() {
+    if (this._teamGameCollectionName) return this._teamGameCollectionName
     try {
+      const { data } = await this.db
+        .collection(PRIMARY_TEAM_GAMES_COLLECTION)
+        .limit(1)
+        .get()
+      this._teamGameCollectionName =
+        data && data.length > 0 ? PRIMARY_TEAM_GAMES_COLLECTION : FALLBACK_TEAM_GAMES_COLLECTION
+    } catch (e) {
+      this._teamGameCollectionName = FALLBACK_TEAM_GAMES_COLLECTION
+    }
+    return this._teamGameCollectionName
+  },
+
+  getMirrorCollectionName(sourceCollection) {
+    return sourceCollection === PRIMARY_TEAM_GAMES_COLLECTION
+      ? FALLBACK_TEAM_GAMES_COLLECTION
+      : PRIMARY_TEAM_GAMES_COLLECTION
+  },
+
+  // 加载对局历史
+  async loadGames(options = {}) {
+    const append = options.append === true
+    if (append) {
+      if (this.data.loadingMore || this.data.loading || !this.data.hasMore) return
+      this.setData({ loadingMore: true })
+    } else {
+      this._cursorTime = null
+      this.setData({ loading: true, loadingMore: false })
+    }
+    try {
+      const sourceCollection = await this.resolveTeamGameCollection()
       // 获取所有队伍信息
       const { data: teamsData } = await this.db.collection('teams').get()
       const teamMap = new Map()
@@ -30,17 +67,32 @@ Page({
         teamMap.set(team._id, team.team_name || team._id)
       })
 
-      const { data } = await this.db.collection('team_games')
-        .orderBy('create_time', 'desc')
-        .limit(100)
-        .get()
-
-      // 筛选包含该玩家的对局
-      let filteredGames = data
+      const _ = this.db.command
+      let query = this.db.collection(sourceCollection)
+      if (this._cursorTime) {
+        query = query.where({
+          create_time: _.lt(this._cursorTime)
+        })
+      }
       if (this.data.isPersonalHistory && this.data.memberId) {
-        filteredGames = data.filter(game =>
-          game.players.some(player => player.name === this.data.memberId)
-        )
+        const whereData = {
+          players: _.elemMatch({
+            name: _.eq(this.data.memberId)
+          })
+        }
+        if (this._cursorTime) {
+          whereData.create_time = _.lt(this._cursorTime)
+        }
+        query = this.db.collection(sourceCollection).where(whereData)
+      }
+      const { data } = await query
+        .orderBy('create_time', 'desc')
+        .limit(TEAM_HISTORY_PAGE_SIZE)
+        .get()
+      const filteredGames = data || []
+      const hasMore = filteredGames.length === TEAM_HISTORY_PAGE_SIZE
+      if (filteredGames.length > 0) {
+        this._cursorTime = filteredGames[filteredGames.length - 1].create_time
       }
 
       // 格式化日期并添加队伍名称和打点信息
@@ -53,18 +105,23 @@ Page({
 
         return {
           ...game,
+          _sourceCollection: sourceCollection,
           players: playersWithTeam,
           formattedDate: this.formatDate(game.create_time)
         }
       })
 
       this.setData({
-        games: formattedGames,
-        connected: true
+        games: append ? this.data.games.concat(formattedGames) : formattedGames,
+        connected: true,
+        hasMore,
+        loading: false,
+        loadingMore: false
       })
     } catch (err) {
       console.error('加载对局历史失败:', err)
       wx.showToast({ title: '加载失败: ' + (err.message || '未知错误'), icon: 'none' })
+      this.setData({ loading: false, loadingMore: false })
     }
   },
 
@@ -87,7 +144,7 @@ Page({
   async refreshData() {
     try {
       wx.showLoading({ title: '刷新中...' })
-      await this.loadGames()
+      await this.loadGames({ append: false })
       wx.showToast({ title: '刷新成功', icon: 'success' })
     } catch (err) {
       console.error('刷新失败:', err)
@@ -97,9 +154,14 @@ Page({
     }
   },
 
+  onLoadMoreGames() {
+    this.loadGames({ append: true })
+  },
+
   // 删除对局记录
   async deleteGame(e) {
     const gameId = e.currentTarget.dataset.id
+    const currentGame = this.data.games.find(g => g._id === gameId)
 
     wx.showModal({
       title: '确认删除',
@@ -108,9 +170,11 @@ Page({
         if (res.confirm) {
           try {
             wx.showLoading({ title: '删除中...' })
+            const sourceCollection = (currentGame && currentGame._sourceCollection) || (await this.resolveTeamGameCollection())
+            const mirrorCollection = this.getMirrorCollectionName(sourceCollection)
 
             // 校验对局记录是否存在
-            const gameRes = await this.db.collection('team_games').doc(gameId).get()
+            const gameRes = await this.db.collection(sourceCollection).doc(gameId).get()
             if (!gameRes.data) {
               throw new Error('对局记录不存在，无法删除')
             }
@@ -227,7 +291,17 @@ Page({
             }
 
             // 删除对局记录
-            await this.db.collection('team_games').doc(gameId).remove()
+            await this.db.collection(sourceCollection).doc(gameId).remove()
+            if (game.game_uid) {
+              const _ = this.db.command
+              const { data: mirrors } = await this.db.collection(mirrorCollection)
+                .where({ game_uid: _.eq(game.game_uid) })
+                .limit(1)
+                .get()
+              if (mirrors && mirrors.length > 0) {
+                await this.db.collection(mirrorCollection).doc(mirrors[0]._id).remove()
+              }
+            }
 
             // 立即从本地数组中剔除被删除的记录，防止重复点击
             const updatedGames = this.data.games.filter(game => game._id !== gameId)

@@ -30,6 +30,13 @@
         </view>
       </view>
     </view>
+
+    <view class="load-more-wrap">
+      <view wx:if="{{hasMore}}" class="load-more-btn {{loadingMore ? 'disabled' : ''}}" bindtap="onLoadMoreGames">
+        {{loadingMore ? '加载中…' : '加载更多'}}
+      </view>
+      <view wx:else class="load-more-done">已显示全部记录</view>
+    </view>
   </view>
 
   <view class="empty-state" wx:if="{{games.length === 0}}">

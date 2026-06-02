@@ -1,0 +1,111 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{seasonName}}</text>
+    <text class="subtitle">{{seasonRange}} · 封存快照</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <block wx:else>
+    <view class="tab-container">
+      <view class="tab {{currentTab === 'total' ? 'active' : ''}}" bindtap="switchTab" data-tab="total">总分榜</view>
+      <view class="tab {{currentTab === 'rate1' ? 'active' : ''}}" bindtap="switchTab" data-tab="rate1">一位率</view>
+      <view class="tab {{currentTab === 'avoid4' ? 'active' : ''}}" bindtap="switchTab" data-tab="avoid4">避四率</view>
+      <view class="tab {{currentTab === 'max' ? 'active' : ''}}" bindtap="switchTab" data-tab="max">最高打点</view>
+      <view class="tab {{currentTab === 'min' ? 'active' : ''}}" bindtap="switchTab" data-tab="min">最低打点</view>
+    </view>
+
+    <view class="rank-list" wx:if="{{currentTab === 'total' && players.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{players}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}}</text>
+          <text class="games-count">对局: {{item.games_played}}场 | {{item.first_place || 0}}/{{item.second_place || 0}}/{{item.third_place || 0}}/{{item.fourth_place || 0}}</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score {{item.total_score >= 0 ? 'positive' : 'negative'}}">
+            {{item.total_score >= 0 ? '+' : ''}}{{item.totalScoreStr}}
+          </text>
+          <text class="score-label">总分</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="rank-list" wx:if="{{currentTab === 'rate1' && rate1List.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{rate1List}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}}</text>
+          <text class="games-count">一位: {{item.first_place || 0}}场 / 总计: {{item.games_played}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="rate-score">{{item.rate1Str}}</text>
+          <text class="score-label">一位率</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="rank-list" wx:if="{{currentTab === 'avoid4' && avoid4List.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{avoid4List}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}}</text>
+          <text class="games-count">非四位: {{item.games_played - (item.fourth_place || 0)}}场 / 总计: {{item.games_played}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="rate-score">{{item.avoid4Str}}</text>
+          <text class="score-label">避四率</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="rank-list" wx:if="{{currentTab === 'max' && maxScoreList.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{maxScoreList}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}}</text>
+          <text class="games-count">对局: {{item.games_played}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score positive">{{item.maxScoreStr}}</text>
+          <text class="score-label">最高打点</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="rank-list" wx:if="{{currentTab === 'min' && minScoreList.length > 0}}">
+      <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}" wx:for="{{minScoreList}}" wx:key="_id">
+        <view class="rank-badge">
+          <text wx:if="{{index < 3}}" class="medal">{{index + 1}}</text>
+          <text wx:else class="normal-rank">{{index + 1}}</text>
+        </view>
+        <view class="player-info">
+          <text class="player-name">{{item.name}}</text>
+          <text class="games-count">对局: {{item.games_played}}场</text>
+        </view>
+        <view class="score-section">
+          <text class="total-score {{item.min_score < 0 ? 'negative' : 'positive'}}">{{item.minScoreStr}}</text>
+          <text class="score-label">最低打点</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{players.length === 0}}">
+      <text class="empty-text">该赛季无排行数据</text>
+    </view>
+  </block>
+</view>

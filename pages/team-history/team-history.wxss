@@ -63,6 +63,29 @@
   gap: 20rpx;
 }
 
+.load-more-wrap {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-btn {
+  padding: 14rpx 40rpx;
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+}
+
+.load-more-btn.disabled {
+  opacity: 0.6;
+}
+
+.load-more-done {
+  color: rgba(255,255,255,0.75);
+  font-size: 24rpx;
+}
+
 .game-card {
   background: rgba(255,255,255,0.1);
   border-radius: 20rpx;

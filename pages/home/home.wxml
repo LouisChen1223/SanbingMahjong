@@ -15,6 +15,15 @@
       </view>
       <view class="card-arrow">›</view>
     </view>
+
+    <view class="entry-card pstats" bindtap="goToPersonalStats">
+      <view class="card-icon">📊</view>
+      <view class="card-info">
+        <text class="card-title">个人战统计</text>
+        <text class="card-desc">方位吃一/四位率、本统计日称号（12:00 换日）</text>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
     
     <!-- 团队战入口 -->
     <view class="entry-card team" bindtap="goToTeam">
@@ -22,6 +31,15 @@
       <view class="card-info">
         <text class="card-title">团队战</text>
         <text class="card-desc">组队对抗，累计积分排名</text>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="entry-card fee" bindtap="goToTableFee">
+      <view class="card-icon">💴</view>
+      <view class="card-info">
+        <text class="card-title">桌费与时长</text>
+        <text class="card-desc">按统计日汇总每人半庄时长与应付桌费</text>
       </view>
       <view class="card-arrow">›</view>
     </view>

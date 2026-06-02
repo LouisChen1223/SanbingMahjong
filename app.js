@@ -25,6 +25,8 @@ App({
   },
 
   globalData: {
-    userInfo: null
+    userInfo: null,
+    // 从 tabBar 不可达页（如选手主页）跳转到「记录」Tab 时传入要筛选的选手名（switchTab 不能带 query）
+    pendingPersonalHistoryName: null
   }
 });

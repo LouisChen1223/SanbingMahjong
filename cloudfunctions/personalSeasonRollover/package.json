@@ -1,0 +1,9 @@
+{
+  "name": "personalSeasonRollover",
+  "version": "1.0.0",
+  "description": "个人赛赛季更替：封存排行快照并开启新赛季",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

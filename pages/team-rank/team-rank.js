@@ -14,7 +14,12 @@ Page({
     currentTab: 'teamTotal',
     currentPersonalTab: 'total',
     teamRate1List: [],
-    teamAvoid4List: []
+    teamAvoid4List: [],
+    milkTeaShow: false,
+    milkTeaEmpty: false,
+    milkTeaNamesText: '',
+    milkTeaHeBai: '',
+    milkTeaMemberId: ''
   },
 
   onLoad() {
@@ -40,7 +45,45 @@ Page({
     this.setData({ rankType: type })
   },
 
+  async buildMilkTeaData() {
+    const {
+      getAccountingSlotWindowForNow,
+      computeMilkTeaFromGames,
+      fetchTeamGamesBetween
+    } = require('../../utils/teamTodayMilkTea.js')
+    try {
+      const { dayStart, dayEnd } = getAccountingSlotWindowForNow()
+      const games = await fetchTeamGamesBetween(this.db, dayStart, dayEnd)
+      const m = computeMilkTeaFromGames(games)
+      if (m.empty) {
+        return {
+          milkTeaShow: true,
+          milkTeaEmpty: true,
+          milkTeaNamesText: '',
+          milkTeaHeBai: '',
+          milkTeaMemberId: ''
+        }
+      }
+      return {
+        milkTeaShow: true,
+        milkTeaEmpty: false,
+        milkTeaNamesText: m.winnerNames.join('、'),
+        milkTeaHeBai: m.ptTotalStr || '',
+        milkTeaMemberId: m.winnerNames.length === 1 ? m.winnerNames[0] : ''
+      }
+    } catch (e) {
+      console.error('奶茶位加载失败', e)
+      return { milkTeaShow: false }
+    }
+  },
 
+  onMilkTeaTap() {
+    const id = this.data.milkTeaMemberId
+    if (!id) return
+    wx.navigateTo({
+      url: '/pages/team-player/team-player?memberId=' + encodeURIComponent(id)
+    })
+  },
 
   // 加载队伍数据
   async loadTeamData() {
@@ -180,6 +223,8 @@ Page({
         }))
         .sort((a, b) => (a.minScore || 0) - (b.minScore || 0))
 
+      const milkTea = await this.buildMilkTeaData()
+
       this.setData({
         teams: formattedTeams,
         teamRate1List: teamRate1List,
@@ -189,7 +234,8 @@ Page({
         teamPlayersAvoid4: teamPlayersAvoid4,
         teamPlayersMaxScore: teamPlayersMaxScore,
         teamPlayersMinScore: teamPlayersMinScore,
-        connected: true
+        connected: true,
+        ...milkTea
       })
     } catch (err) {
       console.error('加载队伍数据失败:', err)

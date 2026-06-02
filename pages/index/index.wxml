@@ -5,6 +5,7 @@
       <text class="back-icon">←</text>
     </view>
     <text class="title">个人战录入</text>
+    <view class="header-placeholder"></view>
   </view>
 
   <view class="input-section">
@@ -20,9 +21,13 @@
         </view>
       </view>
     </view>
+    <view class="duration-row">
+      <text class="duration-label">本半庄时长</text>
+      <input class="duration-input" type="number" placeholder="分钟" value="{{halfRoundDurationMinutes}}" bindinput="onDurationInput" />
+    </view>
   </view>
 
-  <button class="settle-btn" bindtap="onSettle" loading="{{loading}}">结算</button>
+  <button class="settle-btn" bindtap="onSettle" loading="{{loading}}" disabled="{{loading}}">结算</button>
 
   <view class="result-section" wx:if="{{result.length > 0}}">
     <text class="section-title">本局结果</text>
@@ -32,10 +37,5 @@
         <text class="result-score">{{item.finalScore > 0 ? '+' : ''}}{{item.finalScore}}</text>
       </view>
     </view>
-  </view>
-
-  <view class="nav-section">
-    <view class="nav-link" bindtap="goRank">查看排行榜</view>
-    <view class="nav-link back-home" bindtap="goHome">返回首页</view>
   </view>
 </view>

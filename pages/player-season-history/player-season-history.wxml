@@ -1,0 +1,60 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{playerName}}</text>
+    <text class="subtitle">各赛季封存数据</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="empty" wx:elif="{{seasons.length === 0}}">
+    <text class="empty-text">暂无历史赛季记录</text>
+    <text class="empty-hint">开启新赛季后，该选手的数据会出现在这里</text>
+  </view>
+
+  <view class="season-list" wx:else>
+    <view
+      class="season-card"
+      wx:for="{{seasons}}"
+      wx:key="seasonId"
+      bindtap="goToSeasonDetail"
+      data-id="{{item.seasonId}}"
+      data-name="{{item.seasonName}}"
+    >
+      <view class="card-top">
+        <view class="card-left">
+          <text class="season-name">{{item.seasonName}}</text>
+          <text class="season-range" wx:if="{{item.rangeStr}}">{{item.rangeStr}}</text>
+        </view>
+        <view class="rank-badge">
+          <text class="rank-num">#{{item.rank}}</text>
+        </view>
+      </view>
+
+      <view class="card-stats">
+        <view class="mini-stat">
+          <text class="mini-val">{{item.gamesPlayed}}</text>
+          <text class="mini-label">场次</text>
+        </view>
+        <view class="mini-stat">
+          <text class="mini-val pt">{{item.totalScoreSigned}}</text>
+          <text class="mini-label">总分</text>
+        </view>
+        <view class="mini-stat">
+          <text class="mini-val">{{item.rate1Str}}</text>
+          <text class="mini-label">一位率</text>
+        </view>
+        <view class="mini-stat">
+          <text class="mini-val">{{item.avgPositionStr}}</text>
+          <text class="mini-label">均顺</text>
+        </view>
+      </view>
+
+      <view class="card-foot">
+        <text class="placement">顺位 {{item.placementStr}}</text>
+        <text class="link">查看赛季全员排行 ›</text>
+      </view>
+    </view>
+  </view>
+</view>
